@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f1f16" />
+  <title>HuquqBot — Yuridik Yordamchi</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- SPLASH SCREEN -->
+  <div id="splash">
+    <div class="splash-logo">
+      <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+        <rect width="52" height="52" rx="16" fill="#1e4d30"/>
+        <path d="M26 10L13 17v11c0 9.5 6.5 16.5 13 18 6.5-1.5 13-8.5 13-18V17L26 10z" stroke="#6fcf97" stroke-width="2" fill="none" stroke-linejoin="round"/>
+        <path d="M20 26l4 4 8-8" stroke="#6fcf97" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="splash-name">HuquqBot</div>
+    <div class="splash-sub">Yuridik yordamchi</div>
+    <div class="splash-dots">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app" class="hidden">
+
+    <!-- HOME VIEW -->
+    <div id="view-home" class="view active">
+      <div class="home-header">
+        <div class="home-logo-row">
+          <svg width="32" height="32" viewBox="0 0 52 52" fill="none">
+            <rect width="52" height="52" rx="14" fill="#1e4d30"/>
+            <path d="M26 10L13 17v11c0 9.5 6.5 16.5 13 18 6.5-1.5 13-8.5 13-18V17L26 10z" stroke="#6fcf97" stroke-width="2" fill="none" stroke-linejoin="round"/>
+            <path d="M20 26l4 4 8-8" stroke="#6fcf97" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="home-title">HuquqBot</span>
+        </div>
+        <div class="home-tagline">Rasmiy manbalardan sodda javob</div>
+      </div>
+
+      <div class="search-wrap">
+        <div class="search-box" id="searchTrigger">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <span class="search-placeholder">Savolingizni yozing...</span>
+        </div>
+      </div>
+
+      <div class="section-label">Tezkor savollar</div>
+      <div class="quick-grid">
+        <div class="quick-card" onclick="startQuestion(this.dataset.q)" data-q="Mehnat ta'tili necha kun bo'ladi?">
+          <div class="quick-icon">📋</div>
+          <div class="quick-text">Mehnat ta'tili</div>
+        </div>
+        <div class="quick-card" onclick="startQuestion(this.dataset.q)" data-q="YaTT ochish uchun nima kerak?">
+          <div class="quick-icon">🏢</div>
+          <div class="quick-text">YaTT ochish</div>
+        </div>
+        <div class="quick-card" onclick="startQuestion(this.dataset.q)" data-q="Uy sotib olsam qanday soliq to'layman?">
+          <div class="quick-icon">🏠</div>
+          <div class="quick-text">Mulk soliqi</div>
+        </div>
+        <div class="quick-card" onclick="startQuestion(this.dataset.q)" data-q="Ishdan bo'shatishda qanday huquqlarim bor?">
+          <div class="quick-icon">⚖️</div>
+          <div class="quick-text">Ish huquqi</div>
+        </div>
+        <div class="quick-card" onclick="startQuestion(this.dataset.q)" data-q="Nikohdan ajrashganda mulk qanday bo'linadi?">
+          <div class="quick-icon">👨‍👩‍👧</div>
+          <div class="quick-text">Oila huquqi</div>
+        </div>
+        <div class="quick-card" onclick="startQuestion(this.dataset.q)" data-q="Avto yil olganda qanday soliq to'lanadi?">
+          <div class="quick-icon">🚗</div>
+          <div class="quick-text">Transport soliqi</div>
+        </div>
+      </div>
+
+      <div class="section-label">Manbalar</div>
+      <div class="sources-row">
+        <div class="source-tag green">lex.uz</div>
+        <div class="source-tag blue">my.gov.uz</div>
+        <div class="source-tag amber">soliq.uz</div>
+        <div class="source-tag teal">mehnat.uz</div>
+      </div>
+
+      <div style="font-size:11px;color:var(--text-muted);text-align:center;margin-bottom:8px;" id="dbStats">
+        Ma'lumotlar bazasi yuklanmoqda...
+      </div>
+
+      <div class="history-section" id="historySection">
+        <div class="section-label">So'nggi savollar</div>
+        <div id="historyList"></div>
+      </div>
+
+      <div class="disclaimer">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Bu ma'lumotlar umumiy ma'lumot uchun. Muhim masalalar uchun mutaxassisga murojaat qiling.
+      </div>
+    </div>
+
+    <!-- CHAT VIEW -->
+    <div id="view-chat" class="view">
+      <div class="chat-header">
+        <button class="back-btn" onclick="goHome()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        <div class="chat-header-info">
+          <div class="chat-header-title">Yuridik tahlil</div>
+          <div class="chat-header-sub" id="chatSourceLabel">lex.uz · my.gov.uz</div>
+        </div>
+        <button class="new-chat-btn" onclick="newChat()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="chat-messages" id="chatMessages"></div>
+
+      <div class="chat-input-wrap">
+        <div class="chat-input-row">
+          <textarea id="chatInput" class="chat-textarea" placeholder="Yangi savol yozing..." rows="1"
+            oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
+          <button class="chat-send-btn" id="sendBtn" onclick="sendMessage()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SEARCH MODAL -->
+  <div id="searchModal" class="modal-overlay hidden">
+    <div class="search-modal">
+      <div class="search-modal-input-row">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Savolingizni yozing..." autocomplete="off" />
+        <button onclick="closeSearch()" class="modal-close">Bekor</button>
+      </div>
+      <div class="search-suggestions" id="searchSuggestions">
+        <div class="suggest-group-label">Tezkor savollar</div>
+        <div class="suggest-item" onclick="startQuestion('Mehnat ta\'tili necha kun?')">Mehnat ta'tili necha kun?</div>
+        <div class="suggest-item" onclick="startQuestion('YaTT ochish tartibi qanday?')">YaTT ochish tartibi qanday?</div>
+        <div class="suggest-item" onclick="startQuestion('Uy sotib olsam qanday soliq to\'layman?')">Uy sotib olsam qanday soliq to'layman?</div>
+        <div class="suggest-item" onclick="startQuestion('Ishdan bo\'shatilsam nima qilishim kerak?')">Ishdan bo'shatilsam nima qilishim kerak?</div>
+        <div class="suggest-item" onclick="startQuestion('Patent soliqi qancha?')">Patent soliqi qancha?</div>
+        <div class="suggest-item" onclick="startQuestion('Nikohdan ajrashganda mulk bo\'linishi qanday?')">Nikohdan ajrashganda mulk bo'linishi qanday?</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

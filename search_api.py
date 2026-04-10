@@ -35,7 +35,7 @@ MAX_RESULTS  = 5        # AI ga nechta qonun yuborilsin
 MAX_TEXT_LEN = 3000     # Har bir qonun matni (belgi), AI uchun
 
 genai.configure(api_key=GEMINI_KEY)
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-2.0-flash")
 
 
 # ── DB ────────────────────────────────────────────────────────────────────────
@@ -251,18 +251,18 @@ JSON formati:
 
 
 def ask_gemini(question: str, laws: list) -> dict:
-    laws_text = ""
-    for i, law in enumerate(laws, 1):
-        laws_text += f"\n=== QONUN {i} ===\n"
-        laws_text += f"Sarlavha: {law['title']}\n"
-        if law.get("number"):
-            laws_text += f"Raqami: {law['number']}\n"
-        if law.get("date"):
-            laws_text += f"Sana: {law['date']}\n"
-        if law.get("text"):
-            laws_text += f"Matn:\n{law['text']}\n"
-
-    prompt = f"""{SYSTEM_PROMPT}
+    if laws:
+        laws_text = ""
+        for i, law in enumerate(laws, 1):
+            laws_text += f"\n=== QONUN {i} ===\n"
+            laws_text += f"Sarlavha: {law['title']}\n"
+            if law.get("number"):
+                laws_text += f"Raqami: {law['number']}\n"
+            if law.get("date"):
+                laws_text += f"Sana: {law['date']}\n"
+            if law.get("text"):
+                laws_text += f"Matn:\n{law['text']}\n"
+        prompt = f"""{SYSTEM_PROMPT}
 
 FOYDALANUVCHI SAVOLI: {question}
 
@@ -270,6 +270,15 @@ RASMIY QONUN MATNLARI:
 {laws_text}
 
 Yuqoridagi qonun matnlari asosida savolga javob ber. FAQAT JSON qaytargin."""
+    else:
+        prompt = f"""{SYSTEM_PROMPT}
+
+FOYDALANUVCHI SAVOLI: {question}
+
+Eslatma: Ma'lumotlar bazasida bu savol uchun aniq qonun matni topilmadi.
+O'zbekiston Respublikasi qonunchiligi (Oila kodeksi, Mehnat kodeksi, Fuqarolik kodeksi va boshqalar)
+bo'yicha umumiy bilimingizdan foydalanib, eng to'g'ri javobni bering.
+FAQAT JSON qaytargin."""
 
     response = model.generate_content(prompt)
     raw = response.text.strip()
@@ -318,21 +327,6 @@ def ask():
 
     laws = search_laws(question)
     logger.info(f"Topildi: {len(laws)} ta qonun")
-
-    if not laws:
-        return jsonify({
-            "found": False,
-            "answer": {
-                "category": "Topilmadi",
-                "icon": "🔍",
-                "simpleAnswer": "Bu mavzu bo'yicha ma'lumotlar bazasida aniq qonun topilmadi. Lex.uz saytida qidiring yoki yuristga murojaat qiling.",
-                "steps": [],
-                "legalBasis": "",
-                "warning": "Rasmiy manbalardan tekshiring.",
-                "confidence": "low"
-            },
-            "sources": []
-        })
 
     try:
         ai_answer = ask_gemini(question, laws)

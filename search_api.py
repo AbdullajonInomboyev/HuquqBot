@@ -14,11 +14,24 @@ import sqlite3
 import re
 import json
 import logging
-import urllib.request
+import gdown
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import google.generativeai as genai
 from dotenv import load_dotenv
+
+DB_PATH = os.getenv("DB_PATH", "/app/data/ldb.db")
+
+def download_db():
+    if not os.path.exists(DB_PATH) or os.path.getsize(DB_PATH) < 1_000_000:
+        os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+        print("⬇️  ldb.db yuklanmoqda...")
+        gdown.download(
+            "https://drive.google.com/uc?id=1RpAWH8GxImR2L8DVX9sL_Z_dM5qbLYPX",
+            DB_PATH, quiet=False
+        )
+
+download_db()
 
 load_dotenv()
 
@@ -29,50 +42,13 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 logger = logging.getLogger(__name__)
 
 # ── Config ────────────────────────────────────────────────────────────────────
-DB_PATH      = os.getenv("DB_PATH", "ldb.db")
 GEMINI_KEY   = os.getenv("GEMINI_API_KEY", "")
 LANG_ID      = 4        # O'zbek lotin
 MAX_RESULTS  = 5        # AI ga nechta qonun yuborilsin
 MAX_TEXT_LEN = 3000     # Har bir qonun matni (belgi), AI uchun
 
-DB_DOWNLOAD_URL = "https://media.githubusercontent.com/media/AbdullajonInomboyev/HuquqBot/main/ldb.db"
-
 genai.configure(api_key=GEMINI_KEY)
 model = genai.GenerativeModel("gemini-2.0-flash")
-
-
-# ── DB validatsiya va yuklab olish ────────────────────────────────────────────
-
-def _is_valid_sqlite(path: str) -> bool:
-    try:
-        with open(path, "rb") as f:
-            return f.read(16) == b"SQLite format 3\x00"
-    except Exception:
-        return False
-
-
-def _download_db():
-    logger.info(f"⬇️  ldb.db yuklanmoqda ({DB_DOWNLOAD_URL})...")
-    try:
-        tmp = DB_PATH + ".tmp"
-        urllib.request.urlretrieve(DB_DOWNLOAD_URL, tmp)
-        if _is_valid_sqlite(tmp):
-            os.replace(tmp, DB_PATH)
-            logger.info("✅ ldb.db muvaffaqiyatli yuklandi")
-            return True
-        else:
-            os.remove(tmp)
-            logger.error("❌ Yuklangan fayl SQLite emas")
-    except Exception as e:
-        logger.error(f"❌ DB yuklab olishda xato: {e}")
-    return False
-
-
-def ensure_db():
-    if _is_valid_sqlite(DB_PATH):
-        return True
-    logger.warning("⚠️  ldb.db noto'g'ri — GitHub'dan yuklanmoqda...")
-    return _download_db()
 
 
 # ── DB ────────────────────────────────────────────────────────────────────────
@@ -411,19 +387,15 @@ if __name__ == "__main__":
 
     if not GEMINI_KEY:
         logger.warning("⚠️  GEMINI_API_KEY topilmadi!")
-    if ensure_db():
-        try:
-            conn = get_db()
-            count = conn.execute(
-                "SELECT COUNT(*) FROM acts WHERE lang_id=? AND status='Y'", (LANG_ID,)
-            ).fetchone()[0]
-            conn.close()
-            logger.info(f"✅ {DB_PATH} — {count:,} ta qonun tayyor")
-        except Exception as e:
-            logger.warning(f"⚠️  DB xato ({e}) — JSON fallback yuklanmoqda")
-            _load_json_laws()
-    else:
-        logger.warning("⚠️  DB yuklab olinmadi — JSON fallback yuklanmoqda")
+    try:
+        conn = get_db()
+        count = conn.execute(
+            "SELECT COUNT(*) FROM acts WHERE lang_id=? AND status='Y'", (LANG_ID,)
+        ).fetchone()[0]
+        conn.close()
+        logger.info(f"✅ {DB_PATH} — {count:,} ta qonun tayyor")
+    except Exception as e:
+        logger.warning(f"⚠️  DB xato ({e}) — JSON fallback yuklanmoqda")
         _load_json_laws()
 
     logger.info(f"🚀 HuquqBot ishga tushmoqda → http://localhost:{port}")

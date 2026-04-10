@@ -50,6 +50,59 @@ def get_db():
     return conn
 
 
+# ── JSON Fallback (Railway LFS muammosi uchun) ────────────────────────────────
+_json_laws = None
+
+def _load_json_laws():
+    global _json_laws
+    try:
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "legal_data.json")
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        laws = []
+        for cat in data.get("laws", {}).values():
+            laws.extend(cat)
+        _json_laws = laws
+        logger.info(f"✅ JSON fallback: {len(laws):,} ta qonun yuklandi")
+    except Exception as e:
+        logger.error(f"legal_data.json yuklashda xato: {e}")
+        _json_laws = []
+
+
+def _search_json(query: str, limit: int = MAX_RESULTS) -> list:
+    global _json_laws
+    if _json_laws is None:
+        _load_json_laws()
+    words = [w for w in re.split(r'\s+', query.strip().lower()) if len(w) > 2]
+    if not words:
+        return []
+    results = {}
+    for law in (_json_laws or []):
+        lid = law["id"]
+        score = 0
+        title_l = law.get("title", "").lower()
+        kws = [k.lower() for k in law.get("keywords", [])]
+        if query.lower() in title_l:
+            score += 100
+        for w in words:
+            if w in title_l:
+                score += 10 * len(w)
+            for kw in kws:
+                if w in kw:
+                    score += 5 * len(w)
+        if score > 0:
+            results[lid] = {
+                "lact_id": lid,
+                "title": law.get("title", ""),
+                "date": law.get("date", ""),
+                "number": law.get("number", ""),
+                "text": law.get("summary", ""),
+                "url": law.get("url", f"https://lex.uz/uz/docs/{lid}"),
+                "score": score,
+            }
+    return sorted(results.values(), key=lambda x: x["score"], reverse=True)[:limit]
+
+
 def clean_html(text: str) -> str:
     """HTML teglarini tozalab, sof matn qaytarish"""
     if not text:
@@ -71,12 +124,17 @@ def search_laws(query: str, limit: int = MAX_RESULTS) -> list:
       1. Sarlavhada to'liq ibora  → 100 ball
       2. Sarlavhada alohida so'zlar → 10 × so'z uzunligi
       3. Qonun matnida so'zlar    → 3 ball (kam natija bo'lsa)
+    DB mavjud bo'lmasa legal_data.json fallback ishlatiladi.
     """
     words = [w for w in re.split(r'\s+', query.strip().lower()) if len(w) > 2]
     if not words:
         return []
 
-    conn = get_db()
+    try:
+        conn = get_db()
+    except Exception as e:
+        logger.warning(f"DB ulanishda xato ({e}) — JSON rejimiga o'tildi")
+        return _search_json(query, limit)
     results = {}
 
     # ── 1-bosqich: to'liq ibora sarlavhada ───────────────────────────────────
@@ -303,8 +361,11 @@ def stats():
         ).fetchone()[0]
         conn.close()
         return jsonify({"total_laws": total, "lang": "O'zbek (lotin)", "source": "lex.uz"})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except Exception:
+        global _json_laws
+        if _json_laws is None:
+            _load_json_laws()
+        return jsonify({"total_laws": len(_json_laws or []), "lang": "O'zbek (lotin)", "source": "legal_data.json"})
 
 
 @app.route("/api/health", methods=["GET"])
@@ -319,15 +380,16 @@ if __name__ == "__main__":
 
     if not GEMINI_KEY:
         logger.warning("⚠️  GEMINI_API_KEY topilmadi!")
-    if not os.path.exists(DB_PATH):
-        logger.error(f"❌ {DB_PATH} topilmadi!")
-    else:
+    try:
         conn = get_db()
         count = conn.execute(
             "SELECT COUNT(*) FROM acts WHERE lang_id=? AND status='Y'", (LANG_ID,)
         ).fetchone()[0]
         conn.close()
         logger.info(f"✅ {DB_PATH} — {count:,} ta qonun tayyor")
+    except Exception as e:
+        logger.warning(f"⚠️  SQLite DB mavjud emas ({e}) — JSON fallback yuklanmoqda")
+        _load_json_laws()
 
     logger.info(f"🚀 HuquqBot ishga tushmoqda → http://localhost:{port}")
     app.run(host="0.0.0.0", port=port, debug=False)

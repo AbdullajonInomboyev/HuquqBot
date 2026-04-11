@@ -1,16 +1,16 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="uz">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
   <meta name="theme-color" content="#050810"/>
-  <title>HuquqBot</title>
+  <title>Yuridik AI</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
     html,body,#root{height:100%;background:#050810;color:#fff}
@@ -43,7 +43,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
 const T={
   uz:{
-    appName:'HuquqBot',
+    appName:'Yuridik AI',
     search:'Savol yoki kalit so\'z...',
     quickQ:'Tezkor savollar',
     sources:'Rasmiy manbalar',
@@ -78,12 +78,12 @@ const T={
     analyzingDoc:'Hujjat tahlil qilinmoqda...',
     docUploaded:'Hujjat yuklandi',
     attachFile:'Fayl biriktirish',
-    quickTitles:['Mehnat ta\'tili','YaTT ochish','Mulk soliqi','Ish huquqi','Oila huquqi','Transport soliqi'],
+    quickTitles:['Mehnat ta\'tili necha kun bo\'ladi?','YaTT ochish uchun nima kerak?','Ishdan bo\'shatishda qanday huquq ...', 'Nikohdan ajrashganda mulk qanday bo\'linadi?','Avto olsam qanday soliq to\'lanadi?'],
     quickQ2:['Mehnat ta\'tili necha kun bo\'ladi?','YaTT ochish uchun nima kerak?','Uy sotib olsam qanday soliq to\'layman?','Ishdan bo\'shatishda qanday huquqlarim bor?','Nikohdan ajrashganda mulk qanday bo\'linadi?','Avto olsam qanday soliq to\'lanadi?'],
-    quickIcons:['📋','🏢','🏠','⚖️','👨‍👩‍👧','🚗'],
+    quickIcons:[],
   },
   ru:{
-    appName:'HuquqBot',
+    appName:'Yuridik AI',
     search:'Вопрос или ключевое слово...',
     quickQ:'Частые вопросы',
     sources:'Официальные источники',
@@ -150,7 +150,7 @@ const I={
 };
 
 const B=(x={})=>({background:'none',border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',...x});
-const F=(c,x={})=>({fontFamily:'DM Sans,sans-serif',color:c,...x});
+const F=(c,x={})=>({fontFamily:'Inter, sans-serif',color:c,...x});
 
 // ── Splash ────────────────────────────────────────────────────────────────────
 function Splash({onDone}){
@@ -166,7 +166,7 @@ function Splash({onDone}){
           </svg>
         </div>
       </div>
-      <h1 style={{fontFamily:'Crimson Pro,serif',fontSize:38,color:'#fff',marginBottom:6}}>HuquqBot</h1>
+      <h1 style={{fontFamily:'Inter, sans-serif',fontSize:38,color:'#fff',marginBottom:6}}>Yuridik AI</h1>
       <p style={{fontSize:13,...F('#64748b')}}>Yuridik AI yordamchi</p>
       <div style={{display:'flex',gap:8,marginTop:32}}>
         {[0,1,2].map(i=><div key={i} style={{width:6,height:6,borderRadius:'50%',background:'#d4a83a',animation:`pulse 1.2s ${i*.2}s infinite ease-in-out`}}/>)}
@@ -186,7 +186,7 @@ function LangSelect({onSelect}){
           <path d="M19 26l5 5 9-9" stroke="#d4a83a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </div>
-      <h1 style={{fontFamily:'Crimson Pro,serif',fontSize:30,color:'#fff',marginBottom:4}}>HuquqBot</h1>
+      <h1 style={{fontFamily:'Inter, sans-serif',fontSize:30,color:'#fff',marginBottom:4}}>Yuridik AI</h1>
       <p style={{fontSize:13,...F('#64748b'),marginBottom:32}}>Tilni tanlang / Выберите язык</p>
       <div style={{width:'100%',maxWidth:300,display:'flex',flexDirection:'column',gap:10}}>
         {[{l:'uz',f:'🇺🇿',n:"O'zbek tili",s:'Davom etish uchun tanlang'},{l:'ru',f:'🇷🇺',n:'Русский язык',s:'Выберите для продолжения'}].map(({l,f,n,s})=>(
@@ -246,7 +246,7 @@ function Home({lang,setLang,onChat,onOpenChat,chats,onDeleteChat,lawCount,topQ})
                 <path d="M19 26l5 5 9-9" stroke="#d4a83a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <span style={{fontFamily:'Crimson Pro,serif',fontSize:22,color:'#fff'}}>{t.appName}</span>
+            <span style={{fontFamily:'Inter, sans-serif',fontSize:22,color:'#fff'}}>{t.appName}</span>
           </div>
           <button onClick={()=>setShowLang(true)} style={{...B({padding:'6px 12px',borderRadius:10,background:'#101829',border:'1px solid rgba(212,168,58,.2)',fontSize:13,fontWeight:600,...F('#e2e8f0')})}}>
             {lang==='uz'?'🇺🇿 UZ':'🇷🇺 RU'}
@@ -370,7 +370,7 @@ function Home({lang,setLang,onChat,onOpenChat,chats,onDeleteChat,lawCount,topQ})
         <button onClick={()=>onChat('')}
           style={{width:'100%',height:52,borderRadius:16,background:'linear-gradient(135deg,#d4a83a,#b8902a)',boxShadow:'0 4px 20px rgba(212,168,58,.35)',border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:10}}>
           <span style={{width:22,height:22,color:'#fff'}}>{I.chat}</span>
-          <span style={{fontSize:15,fontWeight:600,color:'#fff',fontFamily:'DM Sans,sans-serif'}}>{t.askBtn}</span>
+          <span style={{fontSize:15,fontWeight:600,color:'#fff',fontFamily:'Inter, sans-serif'}}>{t.askBtn}</span>
         </button>
       </div>
 
@@ -378,7 +378,7 @@ function Home({lang,setLang,onChat,onOpenChat,chats,onDeleteChat,lawCount,topQ})
       {showLang&&(
         <div style={{position:'fixed',inset:0,zIndex:50,display:'flex',alignItems:'flex-end',background:'rgba(5,8,16,.85)',backdropFilter:'blur(8px)'}} onClick={()=>setShowLang(false)}>
           <div style={{width:'100%',background:'#0a0f1e',borderRadius:'22px 22px 0 0',padding:'20px',border:'1px solid rgba(212,168,58,.2)'}} className="su" onClick={e=>e.stopPropagation()}>
-            <p style={{fontFamily:'Crimson Pro,serif',fontSize:18,color:'#fff',marginBottom:14}}>{t.changeLang}</p>
+            <p style={{fontFamily:'Inter, sans-serif',fontSize:18,color:'#fff',marginBottom:14}}>{t.changeLang}</p>
             {[{l:'uz',f:'🇺🇿',n:"O'zbek tili"},{l:'ru',f:'🇷🇺',n:'Русский язык'}].map(({l,f,n})=>(
               <button key={l} onClick={()=>{S.set('hb_lang',l);setLang(l);setShowLang(false);}}
                 style={{display:'flex',alignItems:'center',gap:12,padding:'12px 14px',borderRadius:13,background:lang===l?'rgba(212,168,58,.12)':'#101829',border:`1px solid rgba(212,168,58,${lang===l?.35:.15})`,cursor:'pointer',width:'100%',marginBottom:8}}>
@@ -418,7 +418,7 @@ function UploadModal({lang,onClose,onResult}){
     <div style={{position:'fixed',inset:0,zIndex:50,display:'flex',alignItems:'flex-end',background:'rgba(5,8,16,.88)',backdropFilter:'blur(8px)'}}>
       <div style={{width:'100%',background:'#0a0f1e',borderRadius:'22px 22px 0 0',padding:'22px',border:'1px solid rgba(212,168,58,.2)'}} className="su">
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:18}}>
-          <h3 style={{fontFamily:'Crimson Pro,serif',fontSize:20,color:'#fff'}}>{t.uploadDoc}</h3>
+          <h3 style={{fontFamily:'Inter, sans-serif',fontSize:20,color:'#fff'}}>{t.uploadDoc}</h3>
           <button onClick={onClose} style={{...B({width:30,height:30,borderRadius:'50%',background:'#101829',fontSize:18,...F('#94a3b8')})}}>×</button>
         </div>
         {uploading?(
@@ -642,7 +642,7 @@ function AnsCard({answer,sources,t,openUrl,msgId,onFb}){
     navigator.clipboard?.writeText(tx).then(()=>{setCopied(true);setTimeout(()=>setCopied(false),2000);});
   };
   const share=()=>{
-    const tx=`⚖️ HuquqBot:\n\n${answer.simpleAnswer||''}\n\n📌 ${answer.legalBasis||''}\n\nlex.uz`;
+    const tx=`⚖️ Yuridik AI:\n\n${answer.simpleAnswer||''}\n\n📌 ${answer.legalBasis||''}\n\nlex.uz`;
     if(navigator.share)navigator.share({text:tx}).catch(()=>{});
     else navigator.clipboard?.writeText(tx).then(()=>{setShared(true);setTimeout(()=>setShared(false),2000);});
   };
@@ -767,6 +767,730 @@ function App(){
     // Load saved top questions for new lang
     setTopQ(S.get(`hb_top_q_${l}`,[]) );
   };
+  const startChat=q=>{const id=`chat_${Date.now()}`;setChatId(id);setInitialQ(q||null);setScreen('chat');};
+  const openChat=id=>{setChatId(id);setInitialQ(null);setScreen('chat');};
+  const saveChat=data=>{setChats(prev=>{const u=[data,...prev.filter(c=>c.id!==data.id)];S.set('hb_chats',u);return u;});};
+  const deleteChat=id=>{S.del(`chat_${id}`);setChats(prev=>{const u=prev.filter(c=>c.id!==id);S.set('hb_chats',u);return u;});};
+
+  if(splash)return <Splash onDone={()=>setSplash(false)}/>;
+  if(!lang)return <LangSelect onSelect={setLangSave}/>;
+  if(screen==='chat')return <Chat lang={lang} chatId={chatId} initialQ={initialQ} onBack={()=>{setScreen('home');setInitialQ(null);}} onSave={saveChat}/>;
+  return <Home lang={lang} setLang={setLangSave} onChat={startChat} onOpenChat={openChat} chats={chats} onDeleteChat={deleteChat} lawCount={lawCount} topQ={topQ}/>;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <meta name="theme-color" content="#050810"/>
+  <title>Yuridik AI</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    html,body,#root{height:100%;background:#050810;color:#fff;font-family:'Inter',sans-serif}
+    body{overflow:hidden}
+    ::-webkit-scrollbar{width:3px}
+    ::-webkit-scrollbar-thumb{background:#1e2d4a;border-radius:99px}
+    .fi{animation:fi .45s ease both}
+    .su{animation:su .3s ease both}
+    @keyframes fi{from{opacity:0}to{opacity:1}}
+    @keyframes su{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes pulse{0%,100%{opacity:.3;transform:scale(.7)}50%{opacity:1;transform:scale(1)}}
+    @keyframes flt{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+    textarea:focus,input:focus{outline:none}
+    .spin{animation:spin 1s linear infinite}
+    .flt{animation:flt 3s ease-in-out infinite}
+    .cw,.hw{display:flex;flex-direction:column;height:100vh;height:100dvh}
+    .hw{overflow:hidden}
+    .hs{scrollbar-width:none}
+    .hs::-webkit-scrollbar{display:none}
+    textarea,input{color:#fff!important;font-family:'Inter',sans-serif!important}
+    ::placeholder{color:#475569!important}
+  </style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef}=React;
+const API='';
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+const T={
+  uz:{
+    appName:'Yuridik AI',
+    search:'Savol yoki kalit so\'z...',
+    quickQ:'Tezkor savollar',
+    sources:'Rasmiy manbalar',
+    history:'So\'nggi chatlar',
+    viewAll:'Barchasini ko\'rish',
+    hideAll:'Barchasini yopish',
+    disclaimer:'Bu ma\'lumotlar tanishish uchun. Muhim masalalar uchun yuristga murojaat qiling.',
+    noResult:'Natija topilmadi',
+    lawCount:'ta hujjat',
+    source:'LEX.UZ',
+    chatTitle:'Yuridik tahlil',
+    err:'Xatolik. Qayta urinib ko\'ring.',
+    placeholder:'Savolingizni yozing...',
+    analyzing:'Savol tahlil qilinmoqda...',
+    searching:'Qonunlar qidirilmoqda...',
+    aiThinking:'AI javob tayyorlamoqda...',
+    highConf:'Yuqori aniqlik',
+    medConf:'O\'rtacha aniqlik',
+    lowConf:'Tekshiring',
+    officialSrc:'Rasmiy manbalar',
+    uploadDoc:'Hujjat yuklash',
+    dragDrop:'Faylni tashlang yoki bosing',
+    supported:'PDF, DOCX, DOC',
+    readFull:'To\'liq o\'qish',
+    feedbackQ:'Foydali bo\'ldimi?',
+    shareChat:'Ulashish',
+    copied:'Nusxalandi!',
+    copyAnswer:'Nusxalash',
+    changeLang:'Tilni o\'zgartirish',
+    noChats:'Hali chat yo\'q',
+    askBtn:'Savol berish',
+    analyzingDoc:'Hujjat tahlil qilinmoqda...',
+    docUploaded:'Hujjat yuklandi',
+    quickTitles:['Mehnat ta\'tili necha kun?','YaTT ochish uchun nima kerak?','Uy sotib olsam qanday soliq?','Ishdan bo\'shatishda huquqlarim?','Nikohdan ajrashganda mulk?','Avto olsam qanday soliq?'],
+    quickQ2:['Mehnat ta\'tili necha kun bo\'ladi?','YaTT ochish uchun nima kerak?','Uy sotib olsam qanday soliq to\'layman?','Ishdan bo\'shatishda qanday huquqlarim bor?','Nikohdan ajrashganda mulk qanday bo\'linadi?','Avto olsam qanday soliq to\'lanadi?'],
+  },
+  ru:{
+    appName:'Yuridik AI',
+    search:'Вопрос или ключевое слово...',
+    quickQ:'Частые вопросы',
+    sources:'Официальные источники',
+    history:'Последние чаты',
+    viewAll:'Показать все',
+    hideAll:'Скрыть',
+    disclaimer:'Информация носит ознакомительный характер. По важным вопросам обращайтесь к юристу.',
+    noResult:'Ничего не найдено',
+    lawCount:'документов',
+    source:'LEX.UZ',
+    chatTitle:'Юридический анализ',
+    err:'Ошибка. Попробуйте ещё раз.',
+    placeholder:'Напишите ваш вопрос...',
+    analyzing:'Анализ вопроса...',
+    searching:'Поиск законов...',
+    aiThinking:'ИИ готовит ответ...',
+    highConf:'Высокая точность',
+    medConf:'Средняя точность',
+    lowConf:'Проверьте',
+    officialSrc:'Официальные источники',
+    uploadDoc:'Загрузить документ',
+    dragDrop:'Перетащите или нажмите',
+    supported:'PDF, DOCX, DOC',
+    readFull:'Читать полностью',
+    feedbackQ:'Было полезно?',
+    shareChat:'Поделиться',
+    copied:'Скопировано!',
+    copyAnswer:'Копировать',
+    changeLang:'Сменить язык',
+    noChats:'Чатов пока нет',
+    askBtn:'Задать вопрос',
+    analyzingDoc:'Анализ документа...',
+    docUploaded:'Документ загружен',
+    quickTitles:['Трудовой отпуск?','Что нужно для ИП?','Налог на имущество?','Права при увольнении?','Раздел имущества?','Налог на авто?'],
+    quickQ2:['Сколько дней длится трудовой отпуск?','Что нужно для открытия ИП?','Какой налог при покупке недвижимости?','Какие права при увольнении?','Как делится имущество при разводе?','Какой налог при покупке авто?'],
+  }
+};
+
+const S={
+  get:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}},
+  del:(k)=>{try{localStorage.removeItem(k)}catch{}},
+};
+
+const I={
+  search:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+  send:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>,
+  back:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>,
+  link:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>,
+  upload:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>,
+  trash:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>,
+  chat:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,
+  info:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
+  globe:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>,
+  share:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>,
+  copy:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>,
+  tUp:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>,
+  tDn:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"/></svg>,
+  attach:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>,
+  doc:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>,
+  plus:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+};
+
+const B=(x={})=>({background:'none',border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',...x});
+const F=(c,x={})=>({fontFamily:'Inter,sans-serif',color:c,...x});
+
+// ── Logo component ────────────────────────────────────────────────────────────
+function Logo({size=80,style={}}){
+  return(
+    <img
+      src="img/logo.png"
+      alt="Yuridik AI"
+      style={{width:size,height:size,objectFit:'contain',borderRadius:size*0.2,...style}}
+      onError={e=>{
+        // Fallback: agar PNG topilmasa SVG ko'rsat
+        e.target.style.display='none';
+        e.target.nextSibling.style.display='flex';
+      }}
+    />
+  );
+}
+
+// ── Splash ────────────────────────────────────────────────────────────────────
+function Splash({onDone}){
+  useEffect(()=>{setTimeout(onDone,2200);},[]);
+  return(
+    <div style={{height:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'#050810',position:'relative',overflow:'hidden'}} className="fi">
+      <div style={{position:'absolute',top:'15%',left:'50%',transform:'translateX(-50%)',width:320,height:320,background:'radial-gradient(circle,rgba(212,168,58,.08) 0%,transparent 70%)',pointerEvents:'none'}}/>
+      
+      {/* Logo */}
+      <div className="flt" style={{marginBottom:24}}>
+        <Logo size={180}/>
+      </div>
+
+      <h1 style={{fontSize:32,fontWeight:700,color:'#fff',marginBottom:6,letterSpacing:'-0.5px'}}>Yuridik AI</h1>
+      <p style={{fontSize:13,...F('#64748b')}}>O'zbekiston qonunchiligi bo'yicha AI</p>
+
+      <div style={{display:'flex',gap:8,marginTop:36}}>
+        {[0,1,2].map(i=><div key={i} style={{width:6,height:6,borderRadius:'50%',background:'#d4a83a',animation:`pulse 1.2s ${i*.2}s infinite ease-in-out`}}/>)}
+      </div>
+
+      <p style={{position:'absolute',bottom:28,fontSize:11,...F('#334155')}}>lex.uz • 50,000+ qonun hujjati</p>
+    </div>
+  );
+}
+
+// ── Lang ──────────────────────────────────────────────────────────────────────
+function LangSelect({onSelect}){
+  return(
+    <div style={{height:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'#050810',padding:'0 24px'}} className="fi">
+      <Logo size={70} style={{marginBottom:18}}/>
+      <h1 style={{fontSize:28,fontWeight:700,color:'#fff',marginBottom:4}}>Yuridik AI</h1>
+      <p style={{fontSize:13,...F('#64748b'),marginBottom:36}}>Tilni tanlang / Выберите язык</p>
+      <div style={{width:'100%',maxWidth:300,display:'flex',flexDirection:'column',gap:10}}>
+        {[{l:'uz',f:'🇺🇿',n:"O'zbek tili",s:'Davom etish uchun tanlang'},{l:'ru',f:'🇷🇺',n:'Русский язык',s:'Выберите для продолжения'}].map(({l,f,n,s})=>(
+          <button key={l} onClick={()=>onSelect(l)}
+            style={{display:'flex',alignItems:'center',gap:14,padding:'14px 16px',borderRadius:16,background:'#101829',border:'1px solid rgba(212,168,58,.2)',cursor:'pointer',width:'100%',transition:'background .15s'}}>
+            <span style={{fontSize:26}}>{f}</span>
+            <div style={{textAlign:'left'}}>
+              <div style={{fontSize:14,fontWeight:600,...F('#fff')}}>{n}</div>
+              <div style={{fontSize:11,...F('#64748b')}}>{s}</div>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Home ──────────────────────────────────────────────────────────────────────
+function Home({lang,setLang,onChat,onOpenChat,chats,onDeleteChat,lawCount,topQ}){
+  const t=T[lang];
+  const [query,setQuery]=useState('');
+  const [results,setResults]=useState([]);
+  const [searching,setSearching]=useState(false);
+  const [showLang,setShowLang]=useState(false);
+  const [showAll,setShowAll]=useState(false);
+  const timer=useRef(null);
+  const tg=window.Telegram?.WebApp;
+  const openUrl=url=>{if(tg?.openLink)tg.openLink(url);else window.open(url,'_blank');};
+
+  useEffect(()=>{
+    clearTimeout(timer.current);
+    if(query.trim().length<2){setResults([]);setSearching(false);return;}
+    setSearching(true);
+    timer.current=setTimeout(async()=>{
+      try{const r=await fetch(`${API}/api/search?q=${encodeURIComponent(query)}&lang=${lang}`);
+        if(r.ok){const d=await r.json();setResults(d.results||[]);}}catch{}
+      setSearching(false);
+    },400);
+  },[query]);
+
+  const qTitles=topQ.length>=4?topQ.slice(0,6):t.quickTitles;
+  const qQ2=topQ.length>=4?topQ.slice(0,6):t.quickQ2;
+  const displayChats=showAll?chats:chats.slice(0,3);
+
+  return(
+    <div className="hw" style={{background:'#050810'}}>
+      {/* Header */}
+      <div style={{flexShrink:0,padding:'14px 14px 10px',background:'linear-gradient(180deg,#050810 60%,transparent 100%)'}}>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div style={{display:'flex',alignItems:'center',gap:10}}>
+            <Logo size={34}/>
+            <span style={{fontSize:20,fontWeight:700,color:'#fff',letterSpacing:'-0.3px'}}>{t.appName}</span>
+          </div>
+          <button onClick={()=>setShowLang(true)}
+            style={{...B({padding:'6px 12px',borderRadius:10,background:'#101829',border:'1px solid rgba(212,168,58,.2)',fontSize:13,fontWeight:600,...F('#e2e8f0')})}}>
+            {lang==='uz'?'🇺🇿 UZ':'🇷🇺 RU'}
+          </button>
+        </div>
+        {lawCount>0&&(
+          <div style={{display:'flex',alignItems:'center',gap:6,marginTop:6}}>
+            <div style={{width:6,height:6,borderRadius:'50%',background:'#22c55e',animation:'pulse 2s infinite'}}/>
+            <span style={{fontSize:11,...F('#64748b')}}>{lawCount.toLocaleString()} {t.lawCount} • {t.source}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Scroll */}
+      <div className="hs" style={{flex:1,overflowY:'auto',padding:'0 14px',paddingBottom:'max(90px,calc(76px + env(safe-area-inset-bottom)))'}}>
+        {/* Search */}
+        <div style={{position:'relative',marginBottom:14}}>
+          <span style={{position:'absolute',left:13,top:'50%',transform:'translateY(-50%)',width:17,height:17,color:'#475569',pointerEvents:'none'}}>{I.search}</span>
+          <input value={query} onChange={e=>setQuery(e.target.value)} placeholder={t.search}
+            style={{width:'100%',paddingLeft:42,paddingRight:16,paddingTop:13,paddingBottom:13,borderRadius:16,background:'#101829',border:'1px solid rgba(212,168,58,.2)',fontSize:14,transition:'border-color .2s'}}
+          />
+          {searching&&<div style={{position:'absolute',right:14,top:'50%',transform:'translateY(-50%)',width:16,height:16,border:'2px solid #d4a83a',borderTopColor:'transparent',borderRadius:'50%'}} className="spin"/>}
+        </div>
+
+        {/* Search results */}
+        {query.trim().length>=2&&(
+          <div style={{marginBottom:14}} className="su">
+            {results.length===0&&!searching?(
+              <div style={{textAlign:'center',padding:'24px 0',fontSize:13,...F('#475569')}}>{t.noResult}</div>
+            ):(
+              <div style={{display:'flex',flexDirection:'column',gap:7}}>
+                {results.map((r,i)=>(
+                  <button key={i} onClick={()=>onChat(r.title)} className="su"
+                    style={{textAlign:'left',padding:'11px 13px',borderRadius:13,background:'#101829',border:'1px solid rgba(212,168,58,.15)',cursor:'pointer',animationDelay:`${i*.04}s`}}>
+                    <div style={{fontSize:13,fontWeight:500,...F('#fff'),marginBottom:3,overflow:'hidden',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical'}}>{r.title}</div>
+                    <div style={{display:'flex',gap:7}}>
+                      <span style={{fontSize:11,...F('#d4a83a')}}>{r.number||'lex.uz'}</span>
+                      {r.date&&<span style={{fontSize:11,...F('#475569')}}>• {r.date.slice(0,4)}</span>}
+                    </div>
+                  </button>
+                ))}
+                <button onClick={()=>onChat(query)}
+                  style={{padding:'11px',borderRadius:13,background:'rgba(212,168,58,.07)',border:'1px solid rgba(212,168,58,.22)',fontSize:13,fontWeight:500,...F('#f0c060'),cursor:'pointer'}}>
+                  🤖 AI: "{query}"
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {!query&&(
+          <>
+            {/* Quick questions — pill style, full text */}
+            <div style={{fontSize:10,...F('#94a3b8'),textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600,marginBottom:10}}>{t.quickQ}</div>
+            <div style={{display:'flex',flexWrap:'wrap',gap:8,marginBottom:20}}>
+              {qTitles.map((title,i)=>(
+                <button key={i} onClick={()=>onChat(qQ2[i])} className="su"
+                  style={{padding:'8px 14px',borderRadius:22,background:'#101829',border:'1px solid rgba(212,168,58,.2)',cursor:'pointer',animationDelay:`${i*.04}s`}}>
+                  <span style={{fontSize:12,fontWeight:500,...F('#e2e8f0')}}>{title}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Chat history */}
+            {chats.length>0&&(
+              <>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
+                  <span style={{fontSize:10,...F('#94a3b8'),textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600}}>{t.history}</span>
+                  {chats.length>3&&(
+                    <button onClick={()=>setShowAll(v=>!v)} style={{...B({fontSize:11,...F('#d4a83a')})}}>
+                      {showAll?t.hideAll:`${t.viewAll} (${chats.length})`}
+                    </button>
+                  )}
+                </div>
+                <div style={{display:'flex',flexDirection:'column',gap:7,marginBottom:18}}>
+                  {displayChats.map(c=>(
+                    <div key={c.id} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:13,background:'#0d1520',border:'1px solid rgba(100,116,139,.15)'}}>
+                      <div style={{width:32,height:32,borderRadius:9,background:'rgba(212,168,58,.08)',display:'flex',alignItems:'center',justifyContent:'center',color:'#d4a83a',flexShrink:0}}>
+                        <span style={{width:15,height:15}}>{I.chat}</span>
+                      </div>
+                      <button onClick={()=>onOpenChat(c.id)} style={{...B({flex:1,justifyContent:'flex-start',textAlign:'left',minWidth:0})}}>
+                        <div>
+                          <div style={{fontSize:12,fontWeight:500,...F('#cbd5e1'),overflow:'hidden',whiteSpace:'nowrap',textOverflow:'ellipsis',maxWidth:200}}>{c.title}</div>
+                          <div style={{fontSize:10,...F('#475569')}}>{new Date(c.updatedAt).toLocaleDateString()} · {c.messages?.length||0} xabar</div>
+                        </div>
+                      </button>
+                      <button onClick={()=>onDeleteChat(c.id)} style={{...B({width:26,height:26,color:'#475569',flexShrink:0})}}>
+                        <span style={{width:14,height:14}}>{I.trash}</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* Sources */}
+            <div style={{fontSize:10,...F('#94a3b8'),textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600,marginBottom:10}}>{t.sources}</div>
+            <div style={{display:'flex',flexWrap:'wrap',gap:8,marginBottom:16}}>
+              {['lex.uz','my.gov.uz','soliq.uz','mehnat.uz'].map(s=>(
+                <button key={s} onClick={()=>openUrl(`https://${s}`)}
+                  style={{...B({gap:5,padding:'6px 12px',borderRadius:20,background:'#101829',border:'1px solid rgba(212,168,58,.2)',fontSize:12,...F('#e2e8f0')})}}>
+                  <span style={{width:12,height:12}}>{I.globe}</span>{s}
+                </button>
+              ))}
+            </div>
+
+            {/* Disclaimer */}
+            <div style={{display:'flex',gap:10,padding:'13px 14px',borderRadius:14,background:'rgba(212,168,58,.04)',border:'1px solid rgba(212,168,58,.13)',marginBottom:8}}>
+              <span style={{width:15,height:15,color:'#f0c060',flexShrink:0,marginTop:1}}>{I.info}</span>
+              <p style={{fontSize:11,...F('#f0c060'),lineHeight:1.6}}>{t.disclaimer}</p>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Bottom button */}
+      <div style={{position:'fixed',bottom:0,left:0,right:0,padding:'10px 16px',paddingBottom:'max(14px,calc(10px + env(safe-area-inset-bottom)))',background:'linear-gradient(to top,#050810 70%,transparent)',zIndex:40}}>
+        <button onClick={()=>onChat('')}
+          style={{width:'100%',height:52,borderRadius:16,background:'linear-gradient(135deg,#d4a83a,#b8902a)',boxShadow:'0 4px 20px rgba(212,168,58,.35)',border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:10}}>
+          <span style={{width:22,height:22,color:'#fff'}}>{I.chat}</span>
+          <span style={{fontSize:15,fontWeight:600,color:'#fff'}}>{t.askBtn}</span>
+        </button>
+      </div>
+
+      {/* Lang modal */}
+      {showLang&&(
+        <div style={{position:'fixed',inset:0,zIndex:50,display:'flex',alignItems:'flex-end',background:'rgba(5,8,16,.85)',backdropFilter:'blur(8px)'}} onClick={()=>setShowLang(false)}>
+          <div style={{width:'100%',background:'#0a0f1e',borderRadius:'22px 22px 0 0',padding:'20px',border:'1px solid rgba(212,168,58,.2)'}} className="su" onClick={e=>e.stopPropagation()}>
+            <p style={{fontSize:18,fontWeight:600,color:'#fff',marginBottom:14}}>{t.changeLang}</p>
+            {[{l:'uz',f:'🇺🇿',n:"O'zbek tili"},{l:'ru',f:'🇷🇺',n:'Русский язык'}].map(({l,f,n})=>(
+              <button key={l} onClick={()=>{S.set('hb_lang',l);setLang(l);setShowLang(false);}}
+                style={{display:'flex',alignItems:'center',gap:12,padding:'12px 14px',borderRadius:13,background:lang===l?'rgba(212,168,58,.12)':'#101829',border:`1px solid rgba(212,168,58,${lang===l?.35:.15})`,cursor:'pointer',width:'100%',marginBottom:8}}>
+                <span style={{fontSize:22}}>{f}</span>
+                <span style={{fontSize:14,fontWeight:500,...F(lang===l?'#f0c060':'#fff')}}>{n}</span>
+                {lang===l&&<span style={{marginLeft:'auto',fontSize:16,color:'#d4a83a'}}>✓</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Chat ──────────────────────────────────────────────────────────────────────
+function Chat({lang,chatId,initialQ,onBack,onSave}){
+  const t=T[lang];
+  const [messages,setMessages]=useState([]);
+  const [input,setInput]=useState('');
+  const [busy,setBusy]=useState(false);
+  const [steps,setSteps]=useState([]);
+  const bottomRef=useRef();
+  const inputRef=useRef();
+  const fileRef=useRef();
+  const tg=window.Telegram?.WebApp;
+
+  useEffect(()=>{
+    const saved=S.get(`chat_${chatId}`,null);
+    if(saved?.messages?.length>0){setMessages(saved.messages);}
+    else if(initialQ){sendMsg(initialQ);}
+  },[chatId]);
+
+  useEffect(()=>{bottomRef.current?.scrollIntoView({behavior:'smooth'});},[messages,steps]);
+
+  const saveChat=(msgs,firstQ)=>{
+    const title=firstQ?.slice(0,50)||msgs[0]?.content?.slice(0,50)||'Chat';
+    const data={id:chatId,title,messages:msgs,updatedAt:Date.now()};
+    S.set(`chat_${chatId}`,data);onSave(data);
+  };
+
+  const sendMsg=async(text,isDoc=false)=>{
+    if(!text?.trim()||busy)return;
+    const q=text.trim();
+    setInput('');
+    if(inputRef.current)inputRef.current.style.height='auto';
+    setBusy(true);
+    const nm=[...messages,{role:'user',content:q,ts:Date.now()}];
+    setMessages(nm);
+    setSteps([t.analyzing,t.searching,t.aiThinking].map((s,i)=>({text:s,state:i===0?'active':'pending'})));
+    await sleep(500);
+    setSteps(s=>s.map((x,i)=>i===0?{...x,state:'done'}:i===1?{...x,state:'active'}:x));
+    try{
+      const r=await fetch(`${API}/api/ask`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({question:q,lang,is_doc:isDoc,history:messages.slice(-8).map(m=>({role:m.role,content:m.role==='user'?m.content:m.content?.simpleAnswer||''}))}),
+      });
+      const d=await r.json();
+      setSteps(s=>s.map((x,i)=>i<=1?{...x,state:'done'}:{...x,state:'active'}));
+      await sleep(350);setSteps([]);
+      const ans={role:'assistant',content:d.answer,sources:d.sources,id:`msg_${Date.now()}`,ts:Date.now()};
+      const all=[...nm,ans];
+      setMessages(all);saveChat(all,q);
+      if(tg?.HapticFeedback)tg.HapticFeedback.impactOccurred('light');
+    }catch{
+      setSteps([]);
+      setMessages(m=>[...m,{role:'assistant',content:null,error:t.err,ts:Date.now()}]);
+    }
+    setBusy(false);
+  };
+
+  const handleFile=async file=>{
+    if(!file||busy)return;
+    const fileName=file.name;
+    const nm=[...messages,{role:'user',content:null,fileMsg:true,fileName,ts:Date.now()}];
+    setMessages(nm);
+    setBusy(true);
+    setSteps([{text:t.analyzingDoc,state:'active'}]);
+    try{
+      const fd=new FormData();fd.append('file',file);fd.append('lang',lang);
+      const r=await fetch(`${API}/api/upload`,{method:'POST',body:fd});
+      const d=await r.json();
+      setSteps([]);
+      if(d.answer){
+        const ans={role:'assistant',content:d.answer,sources:d.sources||[],id:`msg_${Date.now()}`,ts:Date.now()};
+        const all=[...nm,ans];
+        setMessages(all);saveChat(all,fileName);
+        if(d.follow_up_questions?.length>0){
+          for(const fq of d.follow_up_questions){
+            await sleep(600);
+            setSteps([{text:t.analyzingDoc,state:'active'}]);
+            try{
+              const r2=await fetch(`${API}/api/ask`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:fq,lang,is_doc:true,history:[]})});
+              const d2=await r2.json();
+              setSteps([]);
+              if(d2.answer){
+                const a2={role:'assistant',content:d2.answer,sources:[],id:`msg_${Date.now()}`,ts:Date.now()};
+                setMessages(m=>{const u=[...m,a2];saveChat(u,fileName);return u;});
+              }
+            }catch{setSteps([]);}
+          }
+        }
+      }else{
+        setMessages(m=>[...m,{role:'assistant',content:null,error:d.error||t.err,ts:Date.now()}]);
+      }
+    }catch{
+      setSteps([]);
+      setMessages(m=>[...m,{role:'assistant',content:null,error:t.err,ts:Date.now()}]);
+    }
+    setBusy(false);
+  };
+
+  const openUrl=url=>{if(tg?.openLink)tg.openLink(url);else window.open(url,'_blank');};
+  const sendFb=async(msgId,val)=>{try{await fetch(`${API}/api/feedback`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({msgId,val,lang})});}catch{}};
+
+  return(
+    <div className="cw" style={{background:'#050810'}}>
+      {/* Header */}
+      <div style={{flexShrink:0,display:'flex',alignItems:'center',gap:10,padding:'12px 14px',borderBottom:'1px solid rgba(212,168,58,.1)'}}>
+        <button onClick={onBack} style={{...B({width:36,height:36,borderRadius:12,background:'#101829',border:'1px solid rgba(212,168,58,.2)',color:'#94a3b8'})}}>
+          <span style={{width:20,height:20}}>{I.back}</span>
+        </button>
+        <div style={{flex:1}}>
+          <div style={{fontSize:14,fontWeight:600,...F('#fff')}}>{t.chatTitle}</div>
+          <div style={{fontSize:10,...F('#475569')}}>LEX.UZ · MY.GOV.UZ · AI</div>
+        </div>
+        <button onClick={()=>{S.del(`chat_${chatId}`);onBack();}} style={{...B({width:36,height:36,borderRadius:12,background:'#101829',border:'1px solid rgba(212,168,58,.2)',color:'#475569'})}}>
+          <span style={{width:15,height:15}}>{I.plus}</span>
+        </button>
+      </div>
+
+      {/* Messages */}
+      <div className="hs" style={{flex:1,overflowY:'auto',padding:'14px',display:'flex',flexDirection:'column',gap:10}}>
+        {messages.map((m,i)=>(
+          <div key={i} style={{display:'flex',justifyContent:m.role==='user'?'flex-end':'flex-start'}} className="su">
+            {m.role==='user'?(
+              m.fileMsg?(
+                <div style={{maxWidth:'75%',padding:'10px 13px',borderRadius:'16px 16px 4px 16px',background:'linear-gradient(135deg,#1e3a6e,#162d58)',border:'1px solid rgba(100,130,200,.2)',display:'flex',alignItems:'center',gap:9}}>
+                  <div style={{width:34,height:34,borderRadius:9,background:'rgba(212,168,58,.15)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                    <span style={{width:18,height:18,color:'#d4a83a'}}>{I.doc}</span>
+                  </div>
+                  <div>
+                    <div style={{fontSize:12,fontWeight:500,...F('#fff'),maxWidth:160,overflow:'hidden',whiteSpace:'nowrap',textOverflow:'ellipsis'}}>{m.fileName}</div>
+                    <div style={{fontSize:10,...F('#93c5fd')}}>{t.docUploaded}</div>
+                  </div>
+                </div>
+              ):(
+                <div style={{maxWidth:'80%',padding:'11px 14px',borderRadius:'17px 17px 4px 17px',background:'linear-gradient(135deg,#1e3a6e,#162d58)',border:'1px solid rgba(100,130,200,.2)',fontSize:14,...F('#fff'),lineHeight:1.55}}>
+                  {m.content}
+                </div>
+              )
+            ):m.error?(
+              <div style={{maxWidth:'80%',padding:'11px 13px',borderRadius:'17px 17px 17px 4px',background:'#101829',border:'1px solid rgba(239,68,68,.2)',fontSize:13,...F('#f87171')}}>⚠️ {m.error}</div>
+            ):(
+              <AnsCard answer={m.content} sources={m.sources} t={t} openUrl={openUrl} msgId={m.id} onFb={sendFb}/>
+            )}
+          </div>
+        ))}
+        {steps.length>0&&(
+          <div style={{display:'flex'}} className="su">
+            <div style={{padding:'11px 13px',borderRadius:'17px 17px 17px 4px',background:'#101829',border:'1px solid rgba(212,168,58,.18)',minWidth:200}}>
+              {steps.filter(s=>s.text).map((s,i)=>(
+                <div key={i} style={{display:'flex',alignItems:'center',gap:9,padding:'4px 0'}}>
+                  <div style={{width:7,height:7,borderRadius:'50%',flexShrink:0,background:s.state==='done'?'#22c55e':s.state==='active'?'#d4a83a':'#162035',animation:s.state==='active'?'pulse 1s infinite':undefined}}/>
+                  <span style={{fontSize:12,...F(s.state==='done'?'#4ade80':s.state==='active'?'#fff':'#475569')}}>{s.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        <div ref={bottomRef}/>
+      </div>
+
+      {/* Input */}
+      <div style={{flexShrink:0,padding:'8px 12px',paddingBottom:'max(10px,calc(8px + env(safe-area-inset-bottom)))',borderTop:'1px solid rgba(212,168,58,.1)'}}>
+        <div style={{display:'flex',alignItems:'flex-end',gap:8,padding:'8px 10px',borderRadius:20,background:'#101829',border:'1px solid rgba(212,168,58,.2)'}}>
+          <button onClick={()=>fileRef.current?.click()} disabled={busy}
+            style={{...B({width:34,height:34,borderRadius:10,background:'rgba(212,168,58,.08)',color:'#d4a83a',flexShrink:0,opacity:busy?.5:1})}}>
+            <span style={{width:17,height:17}}>{I.attach}</span>
+          </button>
+          <input ref={fileRef} type="file" accept=".pdf,.docx,.doc" style={{display:'none'}} onChange={e=>{handleFile(e.target.files[0]);e.target.value='';}}/>
+          <textarea ref={inputRef} value={input} onChange={e=>setInput(e.target.value)}
+            placeholder={t.placeholder} rows={1}
+            onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg(input);}}}
+            onInput={e=>{e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,100)+'px';}}
+            style={{flex:1,background:'transparent',border:'none',fontSize:14,...F('#fff'),lineHeight:1.5,resize:'none',maxHeight:100,minHeight:22}}
+          />
+          <button onClick={()=>sendMsg(input)} disabled={busy||!input.trim()}
+            style={{...B({width:36,height:36,borderRadius:'50%',background:busy||!input.trim()?'#162035':'linear-gradient(135deg,#d4a83a,#b8902a)',flexShrink:0,opacity:busy||!input.trim()?.5:1,transition:'all .2s'})}}>
+            <span style={{width:15,height:15,...F('#fff')}}>{I.send}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Answer Card ───────────────────────────────────────────────────────────────
+function AnsCard({answer,sources,t,openUrl,msgId,onFb}){
+  const [fb,setFb]=useState(null);
+  const [copied,setCopied]=useState(false);
+  const [shared,setShared]=useState(false);
+  if(!answer)return null;
+
+  const cs=answer.confidence==='high'?{c:'#4ade80',b:'rgba(34,197,94,.1)',br:'rgba(34,197,94,.2)'}
+    :answer.confidence==='medium'?{c:'#f0c060',b:'rgba(212,168,58,.1)',br:'rgba(212,168,58,.2)'}
+    :{c:'#f87171',b:'rgba(239,68,68,.1)',br:'rgba(239,68,68,.2)'};
+  const ct=answer.confidence==='high'?t.highConf:answer.confidence==='medium'?t.medConf:t.lowConf;
+
+  const copy=()=>{
+    const tx=`⚖️ ${answer.category}\n\n${answer.simpleAnswer||''}\n\n📌 ${answer.legalBasis||''}\n\n@yuridikAIbot`;
+    navigator.clipboard?.writeText(tx).then(()=>{setCopied(true);setTimeout(()=>setCopied(false),2000);});
+  };
+  const share=()=>{
+    const tx=`⚖️ Yuridik AI:\n\n${answer.simpleAnswer||''}\n\n📌 ${answer.legalBasis||''}\n\nlex.uz`;
+    if(navigator.share)navigator.share({text:tx}).catch(()=>{});
+    else navigator.clipboard?.writeText(tx).then(()=>{setShared(true);setTimeout(()=>setShared(false),2000);});
+  };
+
+  return(
+    <div style={{maxWidth:'92%',width:'92%'}}>
+      <div style={{padding:'13px',borderRadius:'17px 17px 17px 4px',background:'#101829',border:'1px solid rgba(212,168,58,.18)'}}>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:9}}>
+          <div style={{display:'flex',alignItems:'center',gap:6}}>
+            <span style={{fontSize:18}}>{answer.icon||'⚖️'}</span>
+            <span style={{fontSize:11,fontWeight:600,...F('#d4a83a'),textTransform:'uppercase',letterSpacing:'0.05em'}}>{answer.category}</span>
+          </div>
+          <span style={{fontSize:10,padding:'2px 7px',borderRadius:20,color:cs.c,background:cs.b,border:`1px solid ${cs.br}`}}>{ct}</span>
+        </div>
+
+        {answer.legalBasis&&(
+          <div style={{display:'flex',gap:7,marginBottom:9,padding:'7px 9px',borderRadius:9,background:'rgba(212,168,58,.05)',border:'1px solid rgba(212,168,58,.1)'}}>
+            <span style={{fontSize:11,...F('#d4a83a'),flexShrink:0}}>📌</span>
+            <span style={{fontSize:12,...F('#e2e8f0'),lineHeight:1.4}}>{answer.legalBasis}</span>
+          </div>
+        )}
+
+        <p style={{fontSize:14,...F('#e2e8f0'),lineHeight:1.65,marginBottom:(answer.steps||[]).length?9:0}}
+          dangerouslySetInnerHTML={{__html:(answer.simpleAnswer||'').replace(/\n/g,'<br/>')}}/>
+
+        {(answer.steps||[]).length>0&&(
+          <div style={{display:'flex',flexDirection:'column',gap:7,marginBottom:9}}>
+            {answer.steps.map((s,i)=>(
+              <div key={i} style={{display:'flex',alignItems:'flex-start',gap:9}}>
+                <span style={{width:19,height:19,borderRadius:'50%',background:'rgba(212,168,58,.12)',fontSize:10,fontWeight:600,...F('#f0c060'),display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:2}}>{i+1}</span>
+                <span style={{fontSize:13,...F('#e2e8f0'),lineHeight:1.5}}>{s}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {(sources||[]).length>0&&(
+          <div style={{borderTop:'1px solid rgba(212,168,58,.1)',paddingTop:9,marginTop:9}}>
+            <div style={{fontSize:10,...F('#64748b'),textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:7}}>{t.officialSrc}</div>
+            {sources.map((s,i)=>(
+              <div key={i} style={{marginBottom:7}}>
+                <button onClick={()=>openUrl(s.url)} style={{...B({justifyContent:'flex-start',gap:5,fontSize:12,...F('#d4a83a'),marginBottom:4,width:'100%',textAlign:'left'})}}>
+                  <span style={{width:12,height:12,flexShrink:0}}>{I.link}</span>
+                  <span style={{overflow:'hidden',whiteSpace:'nowrap',textOverflow:'ellipsis'}}>{s.title}</span>
+                </button>
+                <button onClick={()=>openUrl(s.url)} style={{...B({gap:5,fontSize:11,...F('#94a3b8'),background:'rgba(212,168,58,.05)',border:'1px solid rgba(212,168,58,.13)',borderRadius:8,padding:'4px 9px'})}}>
+                  <span style={{width:10,height:10}}>{I.globe}</span>{t.readFull} →
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {answer.warning&&answer.warning!=='null'&&(
+          <div style={{display:'flex',gap:7,marginTop:9,paddingTop:9,borderTop:'1px solid rgba(212,168,58,.1)'}}>
+            <span style={{width:12,height:12,...F('#f0c060'),flexShrink:0,marginTop:2}}>{I.info}</span>
+            <span style={{fontSize:12,...F('#f0c060'),lineHeight:1.5}}>{answer.warning}</span>
+          </div>
+        )}
+
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:10,paddingTop:9,borderTop:'1px solid rgba(212,168,58,.08)'}}>
+          <div style={{display:'flex',alignItems:'center',gap:5}}>
+            <span style={{fontSize:10,...F('#475569')}}>{t.feedbackQ}</span>
+            <button onClick={()=>{setFb('up');onFb?.(msgId,'up');}} style={{...B({width:27,height:27,borderRadius:8,background:fb==='up'?'rgba(34,197,94,.15)':'rgba(212,168,58,.05)',border:`1px solid ${fb==='up'?'rgba(34,197,94,.3)':'rgba(212,168,58,.1)'}`,transition:'all .2s'})}}>
+              <span style={{width:12,height:12,...F(fb==='up'?'#4ade80':'#64748b')}}>{I.tUp}</span>
+            </button>
+            <button onClick={()=>{setFb('down');onFb?.(msgId,'down');}} style={{...B({width:27,height:27,borderRadius:8,background:fb==='down'?'rgba(239,68,68,.15)':'rgba(212,168,58,.05)',border:`1px solid ${fb==='down'?'rgba(239,68,68,.3)':'rgba(212,168,58,.1)'}`,transition:'all .2s'})}}>
+              <span style={{width:12,height:12,...F(fb==='down'?'#f87171':'#64748b')}}>{I.tDn}</span>
+            </button>
+          </div>
+          <div style={{display:'flex',gap:5}}>
+            <button onClick={copy} style={{...B({gap:4,fontSize:11,...F(copied?'#4ade80':'#94a3b8'),background:'rgba(212,168,58,.05)',border:'1px solid rgba(212,168,58,.12)',borderRadius:8,padding:'4px 8px',transition:'color .2s'})}}>
+              <span style={{width:11,height:11}}>{I.copy}</span>{copied?t.copied:t.copyAnswer}
+            </button>
+            <button onClick={share} style={{...B({gap:4,fontSize:11,...F(shared?'#4ade80':'#94a3b8'),background:'rgba(212,168,58,.05)',border:'1px solid rgba(212,168,58,.12)',borderRadius:8,padding:'4px 8px',transition:'color .2s'})}}>
+              <span style={{width:11,height:11}}>{I.share}</span>{shared?'✓':t.shareChat}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── App ───────────────────────────────────────────────────────────────────────
+function App(){
+  const [splash,setSplash]=useState(true);
+  const [lang,setLang]=useState(()=>S.get('hb_lang',null));
+  const [screen,setScreen]=useState('home');
+  const [chatId,setChatId]=useState(null);
+  const [initialQ,setInitialQ]=useState(null);
+  const [chats,setChats]=useState(()=>S.get('hb_chats',[]));
+  const [lawCount,setLawCount]=useState(0);
+  const [topQ,setTopQ]=useState(()=>S.get(`hb_top_q_${S.get('hb_lang','uz')}`,[]));
+  const tg=window.Telegram?.WebApp;
+
+  useEffect(()=>{
+    if(tg){tg.ready();tg.expand();tg.setHeaderColor?.('#050810');tg.setBackgroundColor?.('#050810');}
+  },[]);
+
+  useEffect(()=>{
+    if(!lang)return;
+    fetch(`${API}/api/stats?lang=${lang}`).then(r=>r.json()).then(d=>{
+      if(d.total_laws)setLawCount(d.total_laws);
+      if(d.top_questions?.length>0){
+        const filtered=d.top_questions.filter(q=>{
+          const qIsRu=/[а-яё]/i.test(q);
+          return (lang==='ru')===qIsRu;
+        });
+        if(filtered.length>=4){setTopQ(filtered);S.set(`hb_top_q_${lang}`,filtered);}
+      }
+    }).catch(()=>{});
+  },[lang]);
+
+  const setLangSave=l=>{S.set('hb_lang',l);setLang(l);setTopQ(S.get(`hb_top_q_${l}`,[]));};
   const startChat=q=>{const id=`chat_${Date.now()}`;setChatId(id);setInitialQ(q||null);setScreen('chat');};
   const openChat=id=>{setChatId(id);setInitialQ(null);setScreen('chat');};
   const saveChat=data=>{setChats(prev=>{const u=[data,...prev.filter(c=>c.id!==data.id)];S.set('hb_chats',u);return u;});};

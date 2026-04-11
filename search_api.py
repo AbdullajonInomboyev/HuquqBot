@@ -6,7 +6,8 @@ import os, re, json, uuid, logging, sqlite3, threading
 from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-from groq import Groq
+# from groq import Groq
+from openai import OpenAI
 from dotenv import load_dotenv
 import gdown
 import fitz
@@ -20,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 # ── Config ────────────────────────────────────────────────────────────────────
 DB_PATH        = os.getenv("DB_PATH", "/app/data/ldb.db")
-GROQ_KEY       = os.getenv("GROQ_API_KEY")
+GROQ_KEY       = os.getenv("DEEPSEEK_API_KEY")
 DATA_DIR       = os.getenv("DATA_DIR", "/app/data")
 GDRIVE_FILE_ID = os.getenv("GDRIVE_FILE_ID", "1RpAWH8GxImR2L8DVX9sL_Z_dM5qbLYPX")  # M-5
 WEBAPP_URL     = os.getenv("WEBAPP_URL", "")
@@ -47,7 +48,7 @@ _stats_lock   = threading.Lock()  # C-2: thread-safe stats
 
 # GROQ_KEY validatsiyasi
 if not GROQ_KEY:
-    logger.warning("GROQ_API_KEY not set — AI features unavailable until configured")
+    logger.warning("DEEPSEEK_API_KEY not set — AI features unavailable until configured")
 
 # M-2: fayl hajmi cheki
 app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_MB * 1024 * 1024
@@ -70,7 +71,8 @@ def download_db():
         logger.error(f"DB yuklanmadi: {e}")
 
 download_db()
-client = Groq(api_key=GROQ_KEY) if GROQ_KEY else None
+# client = Groq(api_key=GROQ_KEY) if GROQ_KEY else None
+client = OpenAI(api_key=DEEPSEEK_KEY, base_url="https://api.deepseek.com") if DEEPSEEK_KEY else None
 
 # ── Thread-safe DB (H-6) ──────────────────────────────────────────────────────
 _local = threading.local()
@@ -354,7 +356,7 @@ def parse_ai(raw):
 
 def ask_ai(question, laws, lang='uz', history=None, system_override=None):
     if not client:
-        raise ValueError("GROQ_API_KEY sozlanmagan")
+        raise ValueError("DEEPSEEK_API_KEY sozlanmagan")
 
     actual = detect_lang(question)
     if actual != lang:
@@ -391,7 +393,8 @@ def ask_ai(question, laws, lang='uz', history=None, system_override=None):
 
     # M-1: timeout qo'shildi
     comp = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        # model="llama-3.3-70b-versatile",
+        model="deepseek-chat",
         messages=msgs,
         max_tokens=1200,
         temperature=0.3,

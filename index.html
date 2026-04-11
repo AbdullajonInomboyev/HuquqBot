@@ -1,692 +1,9 @@
-<!-- <!DOCTYPE html>
-<html lang="uz">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-  <meta name="theme-color" content="#0a0f1e"/>
-  <title>HuquqBot — Yuridik Yordamchi</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            navy: { 950:'#050810', 900:'#0a0f1e', 800:'#101829', 700:'#162035', 600:'#1e2d4a' },
-            gold: { 400:'#f0c060', 500:'#d4a83a', 600:'#b8902a' },
-            jade: { 400:'#4ade80', 500:'#22c55e', 600:'#16a34a' },
-            slate2: { 400:'#94a3b8', 500:'#64748b', 600:'#475569' }
-          },
-          fontFamily: {
-            display: ['Crimson Pro', 'Georgia', 'serif'],
-            body: ['DM Sans', 'system-ui', 'sans-serif'],
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-    html,body,#root{height:100%;background:#050810;color:#fff}
-    body{overflow:hidden}
-    ::-webkit-scrollbar{width:3px}
-    ::-webkit-scrollbar-track{background:transparent}
-    ::-webkit-scrollbar-thumb{background:#1e2d4a;border-radius:99px}
-    .fade-in{animation:fadeIn .5s ease both}
-    .slide-up{animation:slideUp .35s ease both}
-    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-    @keyframes slideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes dotPulse{0%,80%,100%{opacity:.25;transform:scale(.7)}40%{opacity:1;transform:scale(1)}}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-    @keyframes glow{0%,100%{opacity:.6}50%{opacity:1}}
-    textarea:focus,input:focus{outline:none}
-    .gold-border{border:1px solid rgba(212,168,58,.2)}
-    .gold-border-strong{border:1px solid rgba(212,168,58,.4)}
-    .spin{animation:spin 1s linear infinite}
-    .float{animation:float 3s ease-in-out infinite}
-    /* Keyboard fix */
-    .chat-wrap{display:flex;flex-direction:column;height:100vh;height:100dvh}
-    .home-wrap{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
-  </style>
-</head>
-<body>
-<div id="root"></div>
-<script type="text/babel">
-const { useState, useEffect, useRef } = React;
-const API = '';
-
-// ── Translations ──────────────────────────────────────────────────────────────
-const T = {
-  uz: {
-    appName:'HuquqBot', tagline:'O\'zbekiston qonunchiligi bo\'yicha AI yordamchi',
-    search:'Savol yoki kalit so\'z...', quickQ:'Tezkor savollar',
-    sources:'Rasmiy manbalar', history:'So\'nggi chatlar',
-    back:'Orqaga', disclaimer:'Bu ma\'lumotlar tanishish uchun. Muhim masalalar uchun yuristga murojaat qiling.',
-    noResult:'Natija topilmadi', lawCount:'ta qonun hujjati', source:'LEX.UZ BAZASIDA',
-    chatTitle:'Yuridik tahlil', errorMsg:'Xatolik yuz berdi. Qayta urinib ko\'ring.',
-    placeholder:'Savolingizni yozing...', analyzing:'Savol tahlil qilinmoqda...',
-    searching:'Qonunlar qidirilmoqda...', aiThinking:'AI javob tayyorlamoqda...',
-    highConf:'Yuqori aniqlik', medConf:'O\'rtacha aniqlik', lowConf:'Tekshiring',
-    officialSrc:'Rasmiy manbalar', uploadDoc:'Hujjat yuklash',
-    dragDrop:'Faylni bu yerga tashlang yoki bosing', supported:'PDF, DOCX, DOC',
-    readFull:'To\'liq qonunni o\'qish', feedbackQ:'Javob foydali bo\'ldimi?',
-    shareChat:'Natijani ulashish', copied:'Nusxa olindi!',
-    quickTitles:['Mehnat ta\'tili','YaTT ochish','Mulk soliqi','Ish huquqi','Oila huquqi','Transport soliqi'],
-    quickQ2:['Mehnat ta\'tili necha kun bo\'ladi?','YaTT ochish uchun nima kerak?','Uy sotib olsam qanday soliq to\'layman?','Ishdan bo\'shatishda qanday huquqlarim bor?','Nikohdan ajrashganda mulk qanday bo\'linadi?','Avto olsam qanday soliq to\'lanadi?'],
-    quickIcons:['📋','🏢','🏠','⚖️','👨‍👩‍👧','🚗'],
-  },
-  ru: {
-    appName:'HuquqBot', tagline:'AI-помощник по законодательству Узбекистана',
-    search:'Вопрос или ключевое слово...', quickQ:'Быстрые вопросы',
-    sources:'Официальные источники', history:'Последние чаты',
-    back:'Назад', disclaimer:'Информация носит ознакомительный характер. По важным вопросам обращайтесь к юристу.',
-    noResult:'Ничего не найдено', lawCount:'правовых документов', source:'В БАЗЕ LEX.UZ',
-    chatTitle:'Юридический анализ', errorMsg:'Произошла ошибка. Попробуйте ещё раз.',
-    placeholder:'Напишите ваш вопрос...', analyzing:'Анализ вопроса...',
-    searching:'Поиск законов...', aiThinking:'ИИ готовит ответ...',
-    highConf:'Высокая точность', medConf:'Средняя точность', lowConf:'Проверьте',
-    officialSrc:'Официальные источники', uploadDoc:'Загрузить документ',
-    dragDrop:'Перетащите файл или нажмите', supported:'PDF, DOCX, DOC',
-    readFull:'Читать полный закон', feedbackQ:'Был ли ответ полезен?',
-    shareChat:'Поделиться ответом', copied:'Скопировано!',
-    quickTitles:['Трудовой отпуск','Открыть ИП','Налог на имущество','Трудовые права','Семейное право','Транспортный налог'],
-    quickQ2:['Сколько дней длится трудовой отпуск?','Что нужно для открытия ИП?','Какой налог при покупке недвижимости?','Какие права при увольнении?','Как делится имущество при разводе?','Какой налог при покупке авто?'],
-    quickIcons:['📋','🏢','🏠','⚖️','👨‍👩‍👧','🚗'],
-  }
-};
-
-// ── Storage ───────────────────────────────────────────────────────────────────
-const storage = {
-  get:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},
-  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}},
-  del:(k)=>{try{localStorage.removeItem(k)}catch{}},
-};
-
-// ── Icons ─────────────────────────────────────────────────────────────────────
-const Ic = {
-  shield:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
-  search:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
-  send:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>,
-  plus:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
-  back:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>,
-  link:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>,
-  upload:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>,
-  trash:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>,
-  chat:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,
-  info:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
-  globe:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>,
-  share:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>,
-  thumb_up:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>,
-  thumb_down:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"/></svg>,
-};
-
-// ── Splash ────────────────────────────────────────────────────────────────────
-function SplashScreen({ onDone }) {
-  useEffect(() => { setTimeout(onDone, 2200); }, []);
-  return (
-    <div className="h-screen flex flex-col items-center justify-center bg-navy-950 fade-in relative overflow-hidden">
-      {/* Background glow effects */}
-      <div style={{position:'absolute',top:'20%',left:'50%',transform:'translateX(-50%)',width:300,height:300,background:'radial-gradient(circle,rgba(212,168,58,.12) 0%,transparent 70%)',pointerEvents:'none'}}/>
-      <div style={{position:'absolute',bottom:'10%',right:'10%',width:200,height:200,background:'radial-gradient(circle,rgba(34,197,94,.07) 0%,transparent 70%)',pointerEvents:'none'}}/>
-
-      {/* Logo */}
-      <div className="float mb-6">
-        <div style={{width:80,height:80,background:'linear-gradient(135deg,#162035,#1e2d4a)',borderRadius:24,border:'1px solid rgba(212,168,58,.3)',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 20px 60px rgba(212,168,58,.15)'}}>
-          <svg width="46" height="46" viewBox="0 0 52 52" fill="none">
-            <path d="M26 8L11 16v13c0 10 6.5 17.5 15 19.5C35.5 46.5 41 39 41 29V16L26 8z" stroke="#d4a83a" strokeWidth="2" fill="rgba(212,168,58,.08)" strokeLinejoin="round"/>
-            <path d="M19 26l5 5 9-9" stroke="#d4a83a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
-      </div>
-
-      <h1 className="font-display text-4xl text-white mb-2 fade-in" style={{animationDelay:'.2s'}}>HuquqBot</h1>
-      <p className="text-slate2-400 text-sm font-body fade-in" style={{animationDelay:'.3s'}}>Yuridik AI yordamchi</p>
-
-      {/* Animated dots */}
-      <div className="flex gap-2 mt-10 fade-in" style={{animationDelay:'.5s'}}>
-        {[0,1,2].map(i=>(
-          <div key={i} style={{width:6,height:6,borderRadius:'50%',background:'#d4a83a',animation:`dotPulse 1.2s ${i*0.2}s infinite ease-in-out`}}/>
-        ))}
-      </div>
-
-      {/* Bottom text */}
-      <div className="absolute bottom-8 text-xs text-slate2-600 font-body fade-in" style={{animationDelay:'.6s'}}>
-        lex.uz • 50,000+ qonun hujjati
-      </div>
-    </div>
-  );
-}
-
-// ── Language Screen ───────────────────────────────────────────────────────────
-function LangScreen({ onSelect }) {
-  return (
-    <div className="h-screen flex flex-col items-center justify-center bg-navy-950 fade-in px-6">
-      <div style={{width:64,height:64,background:'linear-gradient(135deg,#162035,#1e2d4a)',borderRadius:20,border:'1px solid rgba(212,168,58,.3)',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:20}}>
-        <svg width="36" height="36" viewBox="0 0 52 52" fill="none">
-          <path d="M26 8L11 16v13c0 10 6.5 17.5 15 19.5C35.5 46.5 41 39 41 29V16L26 8z" stroke="#d4a83a" strokeWidth="2" fill="rgba(212,168,58,.08)" strokeLinejoin="round"/>
-          <path d="M19 26l5 5 9-9" stroke="#d4a83a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </div>
-      <h1 className="font-display text-3xl text-white mb-1">HuquqBot</h1>
-      <p className="text-slate2-400 text-sm mb-10 font-body">Tilni tanlang / Выберите язык</p>
-      <div className="w-full max-w-xs space-y-3">
-        {[{l:'uz',flag:'🇺🇿',name:"O'zbek tili",sub:'Davom etish uchun tanlang'},{l:'ru',flag:'🇷🇺',name:'Русский язык',sub:'Выберите для продолжения'}].map(({l,flag,name,sub})=>(
-          <button key={l} onClick={()=>onSelect(l)}
-            className="w-full flex items-center gap-4 p-4 rounded-2xl bg-navy-800 gold-border hover:bg-navy-700 transition-all active:scale-95">
-            <span style={{fontSize:28}}>{flag}</span>
-            <div className="text-left">
-              <div className="font-body font-semibold text-white text-sm">{name}</div>
-              <div className="text-xs text-slate2-400 font-body">{sub}</div>
-            </div>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ── Home Screen ───────────────────────────────────────────────────────────────
-function HomeScreen({ lang, onChat, onOpenChat, chats, onDeleteChat, lawCount }) {
-  const t = T[lang];
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState([]);
-  const [searching, setSearching] = useState(false);
-  const [showUpload, setShowUpload] = useState(false);
-  const timer = useRef(null);
-  const tg = window.Telegram?.WebApp;
-
-  useEffect(()=>{
-    clearTimeout(timer.current);
-    if(query.trim().length<2){setResults([]);return;}
-    setSearching(true);
-    timer.current=setTimeout(async()=>{
-      try{
-        const r=await fetch(`${API}/api/search?q=${encodeURIComponent(query)}&lang=${lang}`);
-        if(r.ok){const d=await r.json();setResults(d.results||[]);}
-      }catch{}
-      setSearching(false);
-    },400);
-  },[query]);
-
-  const openUrl=url=>{if(tg?.openLink)tg.openLink(url);else window.open(url,'_blank');};
-
-  return (
-    <div className="home-wrap bg-navy-950">
-      {/* Header */}
-      <div className="flex-shrink-0 px-4 pt-5 pb-3" style={{background:'linear-gradient(180deg,#050810 60%,rgba(5,8,16,0) 100%)'}}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div style={{width:32,height:32,background:'linear-gradient(135deg,#162035,#1e2d4a)',borderRadius:10,border:'1px solid rgba(212,168,58,.3)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-              <svg width="18" height="18" viewBox="0 0 52 52" fill="none">
-                <path d="M26 8L11 16v13c0 10 6.5 17.5 15 19.5C35.5 46.5 41 39 41 29V16L26 8z" stroke="#d4a83a" strokeWidth="2.5" fill="rgba(212,168,58,.1)" strokeLinejoin="round"/>
-                <path d="M19 26l5 5 9-9" stroke="#d4a83a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <span className="font-display text-xl text-white">{t.appName}</span>
-          </div>
-          <button onClick={()=>setShowUpload(true)}
-            style={{width:34,height:34,borderRadius:10,background:'#101829',border:'1px solid rgba(212,168,58,.2)',display:'flex',alignItems:'center',justifyContent:'center',color:'#d4a83a'}}>
-            <span style={{width:16,height:16,display:'block'}}>{Ic.upload}</span>
-          </button>
-        </div>
-        {lawCount>0&&(
-          <div className="flex items-center gap-1.5 mt-1.5">
-            <div style={{width:6,height:6,borderRadius:'50%',background:'#22c55e',animation:'dotPulse 2s infinite'}}/>
-            <span style={{fontSize:11,color:'#64748b',fontFamily:'DM Sans,sans-serif'}}>
-              {lawCount.toLocaleString()} {t.lawCount} • {t.source}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto px-4 pb-24" style={{scrollbarWidth:'none'}}>
-        {/* Search */}
-        <div className="relative mb-4">
-          <div style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',width:17,height:17,color:'#475569'}}>{Ic.search}</div>
-          <input value={query} onChange={e=>setQuery(e.target.value)} placeholder={t.search}
-            style={{width:'100%',paddingLeft:42,paddingRight:16,paddingTop:13,paddingBottom:13,borderRadius:16,background:'#101829',border:'1px solid rgba(212,168,58,.2)',color:'#fff',fontSize:14,fontFamily:'DM Sans,sans-serif'}}
-            className="placeholder-slate2-600 focus:border-gold-500 transition-colors"
-          />
-          {searching&&<div style={{position:'absolute',right:14,top:'50%',transform:'translateY(-50%)',width:16,height:16,border:'2px solid #d4a83a',borderTopColor:'transparent',borderRadius:'50%'}} className="spin"/>}
-        </div>
-
-        {/* Search results */}
-        {query.trim().length>=2&&(
-          <div className="mb-4 slide-up">
-            {results.length===0&&!searching?(
-              <div style={{textAlign:'center',padding:'28px 0',color:'#64748b',fontSize:13}}>{t.noResult}</div>
-            ):(
-              <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                {results.map((r,i)=>(
-                  <button key={i} onClick={()=>onChat(r.title)}
-                    style={{width:'100%',textAlign:'left',padding:'12px 14px',borderRadius:14,background:'#101829',border:'1px solid rgba(212,168,58,.2)',animationDelay:`${i*.05}s`}}
-                    className="slide-up hover:bg-navy-700 transition-colors active:scale-98">
-                    <div style={{fontSize:13,color:'#fff',fontFamily:'DM Sans,sans-serif',fontWeight:500,marginBottom:4,overflow:'hidden',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical'}}>{r.title}</div>
-                    <div style={{display:'flex',alignItems:'center',gap:8}}>
-                      <span style={{fontSize:11,color:'#d4a83a'}}>{r.number||'lex.uz'}</span>
-                      {r.date&&<span style={{fontSize:11,color:'#475569'}}>• {r.date.slice(0,4)}</span>}
-                      <span style={{marginLeft:'auto',width:12,height:12,color:'#475569'}}>{Ic.link}</span>
-                    </div>
-                  </button>
-                ))}
-                {results.length>0&&(
-                  <button onClick={()=>onChat(query)}
-                    style={{width:'100%',padding:'12px',borderRadius:14,background:'rgba(212,168,58,.08)',border:'1px solid rgba(212,168,58,.25)',color:'#f0c060',fontSize:13,fontFamily:'DM Sans,sans-serif',fontWeight:500}}>
-                    🤖 AI dan so'rash: "{query}"
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Quick Q */}
-        {!query&&(
-          <>
-            <div style={{fontSize:11,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600,marginBottom:10,fontFamily:'DM Sans,sans-serif'}}>{t.quickQ}</div>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:20}}>
-              {t.quickTitles.map((title,i)=>(
-                <button key={i} onClick={()=>onChat(t.quickQ2[i])}
-                  style={{display:'flex',flexDirection:'column',alignItems:'flex-start',gap:8,padding:'14px 12px',borderRadius:16,background:'#101829',border:'1px solid rgba(212,168,58,.2)',animationDelay:`${i*.06}s`,cursor:'pointer'}}
-                  className="slide-up hover:bg-navy-700 transition-colors active:scale-95">
-                  <span style={{fontSize:22}}>{t.quickIcons[i]}</span>
-                  <span style={{fontSize:12,color:'#fff',fontFamily:'DM Sans,sans-serif',fontWeight:500,lineHeight:1.3,textAlign:'left'}}>{title}</span>
-                </button>
-              ))}
-            </div>
-
-            {/* Sources */}
-            <div style={{fontSize:11,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600,marginBottom:10,fontFamily:'DM Sans,sans-serif'}}>{t.sources}</div>
-            <div style={{display:'flex',flexWrap:'wrap',gap:8,marginBottom:20}}>
-              {['lex.uz','my.gov.uz','soliq.uz','mehnat.uz'].map(s=>(
-                <button key={s} onClick={()=>openUrl(`https://${s}`)}
-                  style={{display:'flex',alignItems:'center',gap:6,padding:'6px 12px',borderRadius:20,background:'#101829',border:'1px solid rgba(212,168,58,.2)',fontSize:12,color:'#e2e8f0',fontFamily:'DM Sans,sans-serif'}}>
-                  <span style={{width:12,height:12}}>{Ic.globe}</span>{s}
-                </button>
-              ))}
-            </div>
-
-            {/* Chat history */}
-            {chats.length>0&&(
-              <>
-                <div style={{fontSize:11,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600,marginBottom:10,fontFamily:'DM Sans,sans-serif'}}>{t.history}</div>
-                <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:20}}>
-                  {chats.slice(0,5).map(c=>(
-                    <div key={c.id} style={{display:'flex',alignItems:'center',gap:12,padding:'12px',borderRadius:14,background:'#101829',border:'1px solid rgba(212,168,58,.2)'}}>
-                      <div style={{width:34,height:34,borderRadius:10,background:'#162035',display:'flex',alignItems:'center',justifyContent:'center',color:'#d4a83a',flexShrink:0}}>
-                        <span style={{width:16,height:16,display:'block'}}>{Ic.chat}</span>
-                      </div>
-                      <button onClick={()=>onOpenChat(c.id)} style={{flex:1,textAlign:'left',minWidth:0}}>
-                        <div style={{fontSize:12,color:'#fff',fontFamily:'DM Sans,sans-serif',fontWeight:500,overflow:'hidden',whiteSpace:'nowrap',textOverflow:'ellipsis'}}>{c.title}</div>
-                        <div style={{fontSize:11,color:'#475569',fontFamily:'DM Sans,sans-serif'}}>{new Date(c.updatedAt).toLocaleDateString()}</div>
-                      </button>
-                      <button onClick={()=>onDeleteChat(c.id)} style={{width:24,height:24,color:'#475569',flexShrink:0}}>
-                        <span style={{width:16,height:16,display:'block'}}>{Ic.trash}</span>
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-
-            {/* Disclaimer */}
-            <div style={{display:'flex',gap:10,padding:'14px',borderRadius:16,background:'rgba(212,168,58,.05)',border:'1px solid rgba(212,168,58,.15)',marginBottom:8}}>
-              <span style={{width:16,height:16,color:'#f0c060',flexShrink:0,marginTop:1}}>{Ic.info}</span>
-              <p style={{fontSize:11,color:'#f0c060',fontFamily:'DM Sans,sans-serif',lineHeight:1.6}}>{t.disclaimer}</p>
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Floating chat button */}
-      <button onClick={()=>onChat('')}
-        style={{position:'fixed',bottom:24,right:20,width:56,height:56,borderRadius:'50%',background:'linear-gradient(135deg,#d4a83a,#b8902a)',boxShadow:'0 6px 28px rgba(212,168,58,.45)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:40,border:'none',cursor:'pointer'}}
-        className="active:scale-90 transition-transform">
-        <span style={{width:24,height:24,color:'#fff',display:'block'}}>{Ic.chat}</span>
-      </button>
-
-      {showUpload&&<UploadModal lang={lang} onClose={()=>setShowUpload(false)} onResult={q=>{setShowUpload(false);onChat(q);}}/>}
-    </div>
-  );
-}
-
-// ── Upload Modal ──────────────────────────────────────────────────────────────
-function UploadModal({ lang, onClose, onResult }) {
-  const t = T[lang];
-  const [uploading,setUploading]=useState(false);
-  const [status,setStatus]=useState('');
-  const fileRef=useRef();
-
-  const handleFile=async file=>{
-    if(!file)return;
-    setUploading(true);
-    setStatus(lang==='uz'?'Fayl yuklanmoqda...':'Загрузка файла...');
-    const fd=new FormData();
-    fd.append('file',file);fd.append('lang',lang);
-    try{
-      const r=await fetch(`${API}/api/upload`,{method:'POST',body:fd});
-      const d=await r.json();
-      if(d.summary){onResult(d.summary);}
-      else{setStatus(t.errorMsg);setUploading(false);}
-    }catch{setStatus(t.errorMsg);setUploading(false);}
-  };
-
-  return (
-    <div style={{position:'fixed',inset:0,zIndex:50,display:'flex',alignItems:'flex-end',background:'rgba(5,8,16,.88)',backdropFilter:'blur(8px)'}}>
-      <div style={{width:'100%',background:'#0a0f1e',borderRadius:'24px 24px 0 0',padding:'24px',border:'1px solid rgba(212,168,58,.2)'}} className="slide-up">
-        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20}}>
-          <h3 style={{fontFamily:'Crimson Pro,serif',fontSize:20,color:'#fff'}}>{t.uploadDoc}</h3>
-          <button onClick={onClose} style={{width:30,height:30,borderRadius:'50%',background:'#101829',color:'#94a3b8',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,border:'none',cursor:'pointer'}}>×</button>
-        </div>
-        {uploading?(
-          <div style={{textAlign:'center',padding:'32px 0'}}>
-            <div style={{width:40,height:40,border:'2px solid #d4a83a',borderTopColor:'transparent',borderRadius:'50%',margin:'0 auto 16px'}} className="spin"/>
-            <p style={{color:'#94a3b8',fontSize:13,fontFamily:'DM Sans,sans-serif'}}>{status}</p>
-          </div>
-        ):(
-          <div onClick={()=>fileRef.current?.click()}
-            style={{border:'2px dashed rgba(212,168,58,.25)',borderRadius:16,padding:'32px',textAlign:'center',cursor:'pointer'}}
-            onDragOver={e=>e.preventDefault()}
-            onDrop={e=>{e.preventDefault();handleFile(e.dataTransfer.files[0]);}}>
-            <div style={{width:40,height:40,color:'#d4a83a',margin:'0 auto 12px'}}>{Ic.upload}</div>
-            <p style={{color:'#fff',fontSize:13,fontFamily:'DM Sans,sans-serif',marginBottom:6}}>{t.dragDrop}</p>
-            <p style={{color:'#475569',fontSize:12,fontFamily:'DM Sans,sans-serif'}}>{t.supported}</p>
-            <input ref={fileRef} type="file" accept=".pdf,.docx,.doc" style={{display:'none'}} onChange={e=>handleFile(e.target.files[0])}/>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ── Chat Screen ───────────────────────────────────────────────────────────────
-function ChatScreen({ lang, chatId, initialQ, onBack, onSave }) {
-  const t = T[lang];
-  const [messages,setMessages]=useState([]);
-  const [input,setInput]=useState('');
-  const [busy,setBusy]=useState(false);
-  const [steps,setSteps]=useState([]);
-  const bottomRef=useRef();
-  const inputRef=useRef();
-  const tg=window.Telegram?.WebApp;
-
-  useEffect(()=>{
-    const saved=storage.get(`chat_${chatId}`,null);
-    if(saved?.messages){setMessages(saved.messages);}
-    else if(initialQ){sendMsg(initialQ);}
-  },[chatId]);
-
-  useEffect(()=>{ bottomRef.current?.scrollIntoView({behavior:'smooth'}); },[messages,steps]);
-
-  const saveChat=(msgs,firstQ)=>{
-    const title=firstQ?.slice(0,50)||msgs[0]?.content?.slice(0,50)||'Chat';
-    const data={id:chatId,title,messages:msgs,updatedAt:Date.now()};
-    storage.set(`chat_${chatId}`,data);
-    onSave(data);
-  };
-
-  const sendMsg=async text=>{
-    if(!text?.trim()||busy)return;
-    const q=text.trim();
-    setInput('');
-    if(inputRef.current){inputRef.current.style.height='auto';}
-    setBusy(true);
-    const newMsgs=[...messages,{role:'user',content:q,ts:Date.now()}];
-    setMessages(newMsgs);
-    const stepList=[t.analyzing,t.searching,t.aiThinking];
-    setSteps(stepList.map((s,i)=>({text:s,state:i===0?'active':'pending'})));
-    await sleep(500);
-    setSteps(s=>s.map((x,i)=>i===0?{...x,state:'done'}:i===1?{...x,state:'active'}:x));
-    try{
-      const r=await fetch(`${API}/api/ask`,{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({question:q,lang,history:messages.slice(-6)})
-      });
-      const d=await r.json();
-      setSteps(s=>s.map((x,i)=>i<=1?{...x,state:'done'}:{...x,state:'active'}));
-      await sleep(400);setSteps([]);
-      const answer={role:'assistant',content:d.answer,sources:d.sources,ts:Date.now()};
-      const all=[...newMsgs,answer];
-      setMessages(all);saveChat(all,q);
-      if(tg?.HapticFeedback)tg.HapticFeedback.impactOccurred('light');
-    }catch{
-      setSteps([]);
-      setMessages(m=>[...m,{role:'assistant',content:null,error:t.errorMsg,ts:Date.now()}]);
-    }
-    setBusy(false);
-  };
-
-  const openUrl=url=>{if(tg?.openLink)tg.openLink(url);else window.open(url,'_blank');};
-
-  return (
-    <div className="chat-wrap bg-navy-950">
-      {/* Header */}
-      <div style={{flexShrink:0,display:'flex',alignItems:'center',gap:10,padding:'12px 16px',borderBottom:'1px solid rgba(212,168,58,.15)'}}>
-        <button onClick={onBack} style={{width:36,height:36,borderRadius:12,background:'#101829',border:'1px solid rgba(212,168,58,.2)',display:'flex',alignItems:'center',justifyContent:'center',color:'#94a3b8',cursor:'pointer'}}>
-          <span style={{width:20,height:20,display:'block'}}>{Ic.back}</span>
-        </button>
-        <div style={{flex:1}}>
-          <div style={{fontSize:14,fontWeight:500,color:'#fff',fontFamily:'DM Sans,sans-serif'}}>{t.chatTitle}</div>
-          <div style={{fontSize:11,color:'#475569',fontFamily:'DM Sans,sans-serif'}}>LEX.UZ · MY.GOV.UZ</div>
-        </div>
-        <button onClick={()=>{storage.del(`chat_${chatId}`);onBack();}}
-          style={{width:36,height:36,borderRadius:12,background:'#101829',border:'1px solid rgba(212,168,58,.2)',display:'flex',alignItems:'center',justifyContent:'center',color:'#475569',cursor:'pointer'}}>
-          <span style={{width:16,height:16,display:'block'}}>{Ic.plus}</span>
-        </button>
-      </div>
-
-      {/* Messages */}
-      <div style={{flex:1,overflowY:'auto',padding:'16px',display:'flex',flexDirection:'column',gap:12,scrollbarWidth:'none'}}>
-        {messages.map((m,i)=>(
-          <div key={i} style={{display:'flex',justifyContent:m.role==='user'?'flex-end':'flex-start'}} className="slide-up">
-            {m.role==='user'?(
-              <div style={{maxWidth:'82%',padding:'12px 14px',borderRadius:'18px 18px 4px 18px',background:'linear-gradient(135deg,#1e3a6e,#162d58)',border:'1px solid rgba(100,130,200,.2)',fontSize:14,color:'#fff',fontFamily:'DM Sans,sans-serif',lineHeight:1.55}}>
-                {m.content}
-                <div style={{textAlign:'right',fontSize:10,color:'rgba(148,163,184,.5)',marginTop:4}}>
-                  {new Date(m.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
-                </div>
-              </div>
-            ):m.error?(
-              <div style={{maxWidth:'82%',padding:'12px 14px',borderRadius:'18px 18px 18px 4px',background:'#101829',border:'1px solid rgba(239,68,68,.2)',fontSize:13,color:'#f87171',fontFamily:'DM Sans,sans-serif'}}>
-                ⚠️ {m.error}
-              </div>
-            ):(
-              <AnswerBubble answer={m.content} sources={m.sources} lang={lang} openUrl={openUrl} ts={m.ts} t={t}/>
-            )}
-          </div>
-        ))}
-
-        {/* Steps */}
-        {steps.length>0&&(
-          <div style={{display:'flex',justifyContent:'flex-start'}} className="slide-up">
-            <div style={{padding:'12px 14px',borderRadius:'18px 18px 18px 4px',background:'#101829',border:'1px solid rgba(212,168,58,.2)',minWidth:200}}>
-              {steps.map((s,i)=>(
-                <div key={i} style={{display:'flex',alignItems:'center',gap:10,padding:'5px 0'}}>
-                  <div style={{width:8,height:8,borderRadius:'50%',flexShrink:0,transition:'background .3s',background:s.state==='done'?'#22c55e':s.state==='active'?'#d4a83a':'#162035',animation:s.state==='active'?'dotPulse 1s infinite':undefined}}/>
-                  <span style={{fontSize:12,fontFamily:'DM Sans,sans-serif',color:s.state==='done'?'#4ade80':s.state==='active'?'#fff':'#475569'}}>{s.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        <div ref={bottomRef}/>
-      </div>
-
-      {/* Input */}
-      <div style={{flexShrink:0,padding:'10px 14px',borderTop:'1px solid rgba(212,168,58,.15)'}}>
-        <div style={{display:'flex',alignItems:'flex-end',gap:10,padding:'10px 12px',borderRadius:20,background:'#101829',border:'1px solid rgba(212,168,58,.2)'}}>
-          <textarea ref={inputRef} value={input} onChange={e=>setInput(e.target.value)}
-            placeholder={t.placeholder} rows={1}
-            onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg(input);}}}
-            onInput={e=>{e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,100)+'px';}}
-            style={{flex:1,background:'transparent',border:'none',color:'#fff',fontFamily:'DM Sans,sans-serif',fontSize:14,lineHeight:1.5,resize:'none',maxHeight:100,minHeight:22}}
-          />
-          <button onClick={()=>sendMsg(input)} disabled={busy||!input.trim()}
-            style={{width:36,height:36,borderRadius:'50%',border:'none',cursor:busy||!input.trim()?'default':'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,transition:'all .2s',background:busy||!input.trim()?'#162035':'linear-gradient(135deg,#d4a83a,#b8902a)',opacity:busy||!input.trim()?0.5:1}}>
-            <span style={{width:16,height:16,color:'#fff',display:'block'}}>{Ic.send}</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Answer Bubble ─────────────────────────────────────────────────────────────
-function AnswerBubble({ answer, sources, lang, openUrl, ts, t }) {
-  const [feedback,setFeedback]=useState(null);
-  const [copied,setCopied]=useState(false);
-  if(!answer)return null;
-
-  const conf=answer.confidence;
-  const confStyle=conf==='high'?{color:'#4ade80',background:'rgba(34,197,94,.1)',border:'1px solid rgba(34,197,94,.2)'}:conf==='medium'?{color:'#f0c060',background:'rgba(212,168,58,.1)',border:'1px solid rgba(212,168,58,.2)'}:{color:'#f87171',background:'rgba(239,68,68,.1)',border:'1px solid rgba(239,68,68,.2)'};
-  const confText=conf==='high'?t.highConf:conf==='medium'?t.medConf:t.lowConf;
-
-  const handleShare=()=>{
-    const text=`⚖️ HuquqBot javob:\n\n${answer.simpleAnswer}\n\n📌 ${answer.legalBasis||''}\n\nlex.uz da tekshiring`;
-    if(navigator.share){navigator.share({text});}
-    else{navigator.clipboard.writeText(text).then(()=>{setCopied(true);setTimeout(()=>setCopied(false),2000);});}
-  };
-
-  return (
-    <div style={{maxWidth:'88%',width:'88%'}}>
-      <div style={{padding:'14px',borderRadius:'18px 18px 18px 4px',background:'#101829',border:'1px solid rgba(212,168,58,.2)'}}>
-        {/* Header */}
-        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
-          <div style={{display:'flex',alignItems:'center',gap:6}}>
-            <span style={{fontSize:18}}>{answer.icon||'⚖️'}</span>
-            <span style={{fontSize:11,fontWeight:600,color:'#d4a83a',letterSpacing:'0.05em',textTransform:'uppercase',fontFamily:'DM Sans,sans-serif'}}>{answer.category}</span>
-          </div>
-          <span style={{fontSize:10,padding:'2px 8px',borderRadius:20,fontFamily:'DM Sans,sans-serif',...confStyle}}>{confText}</span>
-        </div>
-
-        {/* Legal basis */}
-        {answer.legalBasis&&(
-          <div style={{display:'flex',alignItems:'flex-start',gap:8,marginBottom:10,padding:'8px 10px',borderRadius:10,background:'rgba(212,168,58,.06)',border:'1px solid rgba(212,168,58,.12)'}}>
-            <span style={{fontSize:12,color:'#d4a83a',flexShrink:0}}>📌</span>
-            <span style={{fontSize:12,color:'#e2e8f0',fontFamily:'DM Sans,sans-serif',lineHeight:1.4}}>{answer.legalBasis}</span>
-          </div>
-        )}
-
-        {/* Answer text */}
-        <p style={{fontSize:14,color:'#e2e8f0',fontFamily:'DM Sans,sans-serif',lineHeight:1.65,marginBottom:10}} dangerouslySetInnerHTML={{__html:(answer.simpleAnswer||'').replace(/\n/g,'<br/>')}}/>
-
-        {/* Steps */}
-        {(answer.steps||[]).length>0&&(
-          <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:10}}>
-            {answer.steps.map((s,i)=>(
-              <div key={i} style={{display:'flex',alignItems:'flex-start',gap:10,fontSize:13}}>
-                <span style={{width:20,height:20,borderRadius:'50%',background:'rgba(212,168,58,.15)',color:'#f0c060',fontSize:11,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:1,fontFamily:'DM Sans,sans-serif',fontWeight:600}}>{i+1}</span>
-                <span style={{color:'#e2e8f0',fontFamily:'DM Sans,sans-serif',lineHeight:1.5}}>{s}</span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Sources + Read full */}
-        {(sources||[]).length>0&&(
-          <div style={{borderTop:'1px solid rgba(212,168,58,.12)',paddingTop:10,marginTop:10}}>
-            <div style={{fontSize:11,color:'#64748b',fontFamily:'DM Sans,sans-serif',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:8}}>{t.officialSrc}</div>
-            {sources.map((s,i)=>(
-              <div key={i} style={{marginBottom:6}}>
-                <button onClick={()=>openUrl(s.url)}
-                  style={{display:'flex',alignItems:'center',gap:6,fontSize:12,color:'#d4a83a',fontFamily:'DM Sans,sans-serif',background:'none',border:'none',cursor:'pointer',padding:0,marginBottom:4,width:'100%',textAlign:'left'}}>
-                  <span style={{width:13,height:13,flexShrink:0}}>{Ic.link}</span>
-                  <span style={{overflow:'hidden',whiteSpace:'nowrap',textOverflow:'ellipsis'}}>{s.title}</span>
-                </button>
-                <button onClick={()=>openUrl(s.url)}
-                  style={{display:'flex',alignItems:'center',gap:5,fontSize:11,color:'#94a3b8',fontFamily:'DM Sans,sans-serif',background:'rgba(212,168,58,.06)',border:'1px solid rgba(212,168,58,.15)',borderRadius:8,padding:'4px 10px',cursor:'pointer'}}>
-                  <span style={{width:11,height:11}}>{Ic.globe}</span>
-                  {t.readFull}
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Warning */}
-        {answer.warning&&answer.warning!=='null'&&(
-          <div style={{display:'flex',gap:8,marginTop:10,paddingTop:10,borderTop:'1px solid rgba(212,168,58,.12)'}}>
-            <span style={{width:13,height:13,color:'#f0c060',flexShrink:0,marginTop:2}}>{Ic.info}</span>
-            <span style={{fontSize:12,color:'#f0c060',fontFamily:'DM Sans,sans-serif',lineHeight:1.5}}>{answer.warning}</span>
-          </div>
-        )}
-
-        {/* Feedback + Share */}
-        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:12,paddingTop:10,borderTop:'1px solid rgba(212,168,58,.1)'}}>
-          <div style={{display:'flex',alignItems:'center',gap:6}}>
-            <span style={{fontSize:11,color:'#475569',fontFamily:'DM Sans,sans-serif'}}>{t.feedbackQ}</span>
-            <button onClick={()=>setFeedback('up')}
-              style={{width:28,height:28,borderRadius:8,border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',background:feedback==='up'?'rgba(34,197,94,.15)':'rgba(212,168,58,.06)',transition:'all .2s'}}>
-              <span style={{width:13,height:13,color:feedback==='up'?'#4ade80':'#64748b'}}>{Ic.thumb_up}</span>
-            </button>
-            <button onClick={()=>setFeedback('down')}
-              style={{width:28,height:28,borderRadius:8,border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',background:feedback==='down'?'rgba(239,68,68,.15)':'rgba(212,168,58,.06)',transition:'all .2s'}}>
-              <span style={{width:13,height:13,color:feedback==='down'?'#f87171':'#64748b'}}>{Ic.thumb_down}</span>
-            </button>
-          </div>
-          <button onClick={handleShare}
-            style={{display:'flex',alignItems:'center',gap:5,fontSize:11,color:copied?'#4ade80':'#94a3b8',fontFamily:'DM Sans,sans-serif',background:'rgba(212,168,58,.06)',border:'1px solid rgba(212,168,58,.15)',borderRadius:8,padding:'5px 10px',cursor:'pointer',transition:'color .2s'}}>
-            <span style={{width:11,height:11}}>{Ic.share}</span>
-            {copied?t.copied:t.shareChat}
-          </button>
-        </div>
-
-        <div style={{textAlign:'right',fontSize:10,color:'rgba(100,116,139,.5)',marginTop:6,fontFamily:'DM Sans,sans-serif'}}>
-          {new Date(ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} · AI Generatsiyasi
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── App ───────────────────────────────────────────────────────────────────────
-function App() {
-  const [splash,setSplash]=useState(true);
-  const [lang,setLang]=useState(()=>storage.get('hb_lang',null));
-  const [screen,setScreen]=useState('home');
-  const [chatId,setChatId]=useState(null);
-  const [initialQ,setInitialQ]=useState(null);
-  const [chats,setChats]=useState(()=>storage.get('hb_chats',[]));
-  const [lawCount,setLawCount]=useState(0);
-  const tg=window.Telegram?.WebApp;
-
-  useEffect(()=>{
-    if(tg){tg.ready();tg.expand();tg.setHeaderColor?.('#050810');tg.setBackgroundColor?.('#050810');}
-    fetch(`${API}/api/stats`).then(r=>r.json()).then(d=>{if(d.total_laws)setLawCount(d.total_laws);}).catch(()=>{});
-  },[]);
-
-  const selectLang=l=>{storage.set('hb_lang',l);setLang(l);};
-  const startChat=q=>{const id=`chat_${Date.now()}`;setChatId(id);setInitialQ(q||null);setScreen('chat');};
-  const openChat=id=>{setChatId(id);setInitialQ(null);setScreen('chat');};
-  const saveChat=data=>{setChats(prev=>{const f=prev.filter(c=>c.id!==data.id);const u=[data,...f];storage.set('hb_chats',u);return u;});};
-  const deleteChat=id=>{storage.del(`chat_${id}`);setChats(prev=>{const u=prev.filter(c=>c.id!==id);storage.set('hb_chats',u);return u;});};
-
-  if(splash)return <SplashScreen onDone={()=>setSplash(false)}/>;
-  if(!lang)return <LangScreen onSelect={selectLang}/>;
-  if(screen==='chat')return <ChatScreen lang={lang} chatId={chatId} initialQ={initialQ} onBack={()=>{setScreen('home');setInitialQ(null);}} onSave={saveChat}/>;
-  return <HomeScreen lang={lang} onChat={startChat} onOpenChat={openChat} chats={chats} onDeleteChat={deleteChat} lawCount={lawCount}/>;
-}
-
-function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
-ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
-</script>
-</body>
-</html> -->
-
 <!DOCTYPE html>
 <html lang="uz">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-  <meta name="theme-color" content="#0a0f1e"/>
+  <meta name="theme-color" content="#050810"/>
   <title>HuquqBot</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -694,124 +11,85 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-  <script>
-    tailwind.config = {
-      theme: { extend: {
-        colors: {
-          navy: { 950:'#050810',900:'#0a0f1e',800:'#101829',700:'#162035',600:'#1e2d4a' },
-          gold: { 400:'#f0c060',500:'#d4a83a',600:'#b8902a' },
-          jade: { 400:'#4ade80',500:'#22c55e' },
-        },
-        fontFamily: { display:['Crimson Pro','Georgia','serif'], body:['DM Sans','system-ui','sans-serif'] }
-      }}
-    }
-  </script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
     html,body,#root{height:100%;background:#050810;color:#fff}
     body{overflow:hidden}
     ::-webkit-scrollbar{width:3px}
     ::-webkit-scrollbar-thumb{background:#1e2d4a;border-radius:99px}
-    .fade-in{animation:fadeIn .5s ease both}
-    .slide-up{animation:slideUp .3s ease both}
-    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-    @keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .fi{animation:fi .45s ease both}
+    .su{animation:su .3s ease both}
+    @keyframes fi{from{opacity:0}to{opacity:1}}
+    @keyframes su{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
     @keyframes spin{to{transform:rotate(360deg)}}
     @keyframes pulse{0%,100%{opacity:.3;transform:scale(.7)}50%{opacity:1;transform:scale(1)}}
-    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+    @keyframes flt{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
     textarea:focus,input:focus{outline:none}
     .gb{border:1px solid rgba(212,168,58,.2)}
-    .gb2{border:1px solid rgba(212,168,58,.35)}
     .spin{animation:spin 1s linear infinite}
-    .float-anim{animation:float 3s ease-in-out infinite}
-    .chat-wrap,.home-wrap{display:flex;flex-direction:column;height:100vh;height:100dvh}
-    .home-wrap{overflow:hidden}
-    textarea{color:#fff!important}
-    input{color:#fff!important}
+    .flt{animation:flt 3s ease-in-out infinite}
+    .cw,.hw{display:flex;flex-direction:column;height:100vh;height:100dvh}
+    .hw{overflow:hidden}
+    textarea,input{color:#fff!important}
     ::placeholder{color:#475569!important}
+    .hscroll::-webkit-scrollbar{display:none}
+    .hscroll{scrollbar-width:none}
   </style>
 </head>
-<body>
-<div id="root"></div>
+<body><div id="root"></div>
 <script type="text/babel">
 const {useState,useEffect,useRef,useCallback} = React;
 const API = '';
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
 
 // ── i18n ──────────────────────────────────────────────────────────────────────
 const T = {
   uz:{
-    appName:'HuquqBot',
-    search:'Savol yoki kalit so\'z...',
-    quickQ:'Tezkor savollar',
-    sources:'Rasmiy manbalar',
-    history:'So\'nggi chatlar',
-    viewAll:'Barchasini ko\'rish',
+    appName:'HuquqBot', search:'Savol yoki kalit so\'z...',
+    quickQ:'Tezkor savollar', sources:'Rasmiy manbalar',
+    history:'So\'nggi chatlar', viewAll:'Barchasini ko\'rish',
     disclaimer:'Bu ma\'lumotlar tanishish uchun. Muhim masalalar uchun yuristga murojaat qiling.',
-    noResult:'Natija topilmadi',
-    lawCount:'ta hujjat',
-    source:'LEX.UZ',
-    chatTitle:'Yuridik tahlil',
-    err:'Xatolik. Qayta urinib ko\'ring.',
-    placeholder:'Savolingizni yozing...',
-    analyzing:'Savol tahlil qilinmoqda...',
-    searching:'Qonunlar qidirilmoqda...',
-    aiThinking:'AI javob tayyorlamoqda...',
+    noResult:'Natija topilmadi', lawCount:'ta hujjat', source:'LEX.UZ',
+    chatTitle:'Yuridik tahlil', err:'Xatolik. Qayta urinib ko\'ring.',
+    placeholder:'Savolingizni yozing...', analyzing:'Savol tahlil qilinmoqda...',
+    searching:'Qonunlar qidirilmoqda...', aiThinking:'AI javob tayyorlamoqda...',
     highConf:'Yuqori aniqlik', medConf:'O\'rtacha aniqlik', lowConf:'Tekshiring',
-    officialSrc:'Rasmiy manbalar',
-    uploadDoc:'Hujjat yuklash', dragDrop:'Faylni tashlang yoki bosing', supported:'PDF, DOCX, DOC',
-    readFull:'To\'liq o\'qish',
-    feedbackQ:'Foydali bo\'ldimi?',
-    shareChat:'Ulashish', copied:'Nusxalandi!',
-    copyAnswer:'Javobni nusxalash',
-    recentSearch:'Oxirgi qidiruvlar',
-    changeLang:'Tilni o\'zgartirish',
-    allChats:'Barcha chatlar',
-    noChats:'Hali chat yo\'q',
-    deleteChat:'O\'chirish',
-    newChat:'Yangi chat',
-    quickTitles:['Mehnat ta\'tili','YaTT ochish','Mulk soliqi','Ish huquqi','Oila huquqi','Transport soliqi'],
+    officialSrc:'Rasmiy manbalar', uploadDoc:'Hujjat yuklash',
+    dragDrop:'Faylni tashlang yoki bosing', supported:'PDF, DOCX, DOC',
+    readFull:'To\'liq o\'qish', feedbackQ:'Foydali bo\'ldimi?',
+    shareChat:'Ulashish', copied:'Nusxalandi!', copyAnswer:'Nusxalash',
+    recentSearch:'Oxirgi qidiruvlar', changeLang:'Tilni o\'zgartirish',
+    noChats:'Hali chat yo\'q', newChat:'Yangi chat',
+    attachFile:'Fayl biriktirish', analyzingDoc:'Hujjat tahlil qilinmoqda...',
+    docUploaded:'Hujjat yuklandi',
+    quickTitles:['Mehnat ta\'tili','YaTT ochish','Mulk soliqi','Ish huquqi','Oila huquqi','Transport'],
     quickQ2:['Mehnat ta\'tili necha kun bo\'ladi?','YaTT ochish uchun nima kerak?','Uy sotib olsam qanday soliq to\'layman?','Ishdan bo\'shatishda qanday huquqlarim bor?','Nikohdan ajrashganda mulk qanday bo\'linadi?','Avto olsam qanday soliq to\'lanadi?'],
     quickIcons:['📋','🏢','🏠','⚖️','👨‍👩‍👧','🚗'],
-    attachFile:'Fayl biriktirish',
   },
   ru:{
-    appName:'HuquqBot',
-    search:'Вопрос или ключевое слово...',
-    quickQ:'Частые вопросы',
-    sources:'Официальные источники',
-    history:'Последние чаты',
-    viewAll:'Показать все',
+    appName:'HuquqBot', search:'Вопрос или ключевое слово...',
+    quickQ:'Частые вопросы', sources:'Официальные источники',
+    history:'Последние чаты', viewAll:'Показать все',
     disclaimer:'Информация носит ознакомительный характер. По важным вопросам обращайтесь к юристу.',
-    noResult:'Ничего не найдено',
-    lawCount:'документов',
-    source:'LEX.UZ',
-    chatTitle:'Юридический анализ',
-    err:'Ошибка. Попробуйте ещё раз.',
-    placeholder:'Напишите ваш вопрос...',
-    analyzing:'Анализ вопроса...',
-    searching:'Поиск законов...',
-    aiThinking:'ИИ готовит ответ...',
+    noResult:'Ничего не найдено', lawCount:'документов', source:'LEX.UZ',
+    chatTitle:'Юридический анализ', err:'Ошибка. Попробуйте ещё раз.',
+    placeholder:'Напишите ваш вопрос...', analyzing:'Анализ вопроса...',
+    searching:'Поиск законов...', aiThinking:'ИИ готовит ответ...',
     highConf:'Высокая точность', medConf:'Средняя точность', lowConf:'Проверьте',
-    officialSrc:'Официальные источники',
-    uploadDoc:'Загрузить документ', dragDrop:'Перетащите или нажмите', supported:'PDF, DOCX, DOC',
-    readFull:'Читать полностью',
-    feedbackQ:'Было полезно?',
-    shareChat:'Поделиться', copied:'Скопировано!',
-    copyAnswer:'Копировать ответ',
-    recentSearch:'Недавние запросы',
-    changeLang:'Сменить язык',
-    allChats:'Все чаты',
-    noChats:'Чатов пока нет',
-    deleteChat:'Удалить',
-    newChat:'Новый чат',
-    quickTitles:['Трудовой отпуск','Открыть ИП','Налог на имущ.','Трудовые права','Семейное право','Транспортный налог'],
+    officialSrc:'Официальные источники', uploadDoc:'Загрузить документ',
+    dragDrop:'Перетащите или нажмите', supported:'PDF, DOCX, DOC',
+    readFull:'Читать полностью', feedbackQ:'Было полезно?',
+    shareChat:'Поделиться', copied:'Скопировано!', copyAnswer:'Копировать',
+    recentSearch:'Недавние запросы', changeLang:'Сменить язык',
+    noChats:'Чатов пока нет', newChat:'Новый чат',
+    attachFile:'Прикрепить файл', analyzingDoc:'Анализ документа...',
+    docUploaded:'Документ загружен',
+    quickTitles:['Трудовой отпуск','Открыть ИП','Налог на имущ.','Трудовые права','Семейное право','Транспорт'],
     quickQ2:['Сколько дней длится трудовой отпуск?','Что нужно для открытия ИП?','Какой налог при покупке недвижимости?','Какие права при увольнении?','Как делится имущество при разводе?','Какой налог при покупке авто?'],
     quickIcons:['📋','🏢','🏠','⚖️','👨‍👩‍👧','🚗'],
-    attachFile:'Прикрепить файл',
   }
 };
 
-// ── Storage ───────────────────────────────────────────────────────────────────
 const S = {
   get:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},
   set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}},
@@ -820,10 +98,8 @@ const S = {
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 const I = {
-  shield:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
   search:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
   send:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>,
-  plus:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
   back:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>,
   link:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>,
   upload:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>,
@@ -832,25 +108,25 @@ const I = {
   info:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
   globe:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>,
   share:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>,
-  copy:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>,
-  thumbUp:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>,
-  thumbDown:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"/></svg>,
+  copy:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>,
+  tUp:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>,
+  tDn:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"/></svg>,
   attach:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>,
-  lang:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>,
+  doc:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>,
   clock:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+  plus:<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
 };
 
-const sleep = ms => new Promise(r=>setTimeout(r,ms));
-const C = (s,o={}) => ({fontFamily:'DM Sans,sans-serif',...o,color:s});
-const btn = (extra={}) => ({background:'none',border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',...extra});
+const B = (extra={}) => ({background:'none',border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',...extra});
+const F = (color,extra={}) => ({fontFamily:'DM Sans,sans-serif',color,...extra});
 
 // ── Splash ────────────────────────────────────────────────────────────────────
 function Splash({onDone}){
   useEffect(()=>{setTimeout(onDone,2000);},[]);
   return (
-    <div style={{height:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'#050810',position:'relative',overflow:'hidden'}} className="fade-in">
-      <div style={{position:'absolute',top:'25%',left:'50%',transform:'translateX(-50%)',width:280,height:280,background:'radial-gradient(circle,rgba(212,168,58,.1) 0%,transparent 70%)',pointerEvents:'none'}}/>
-      <div className="float-anim" style={{marginBottom:20}}>
+    <div style={{height:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'#050810',position:'relative',overflow:'hidden'}} className="fi">
+      <div style={{position:'absolute',top:'20%',left:'50%',transform:'translateX(-50%)',width:280,height:280,background:'radial-gradient(circle,rgba(212,168,58,.1) 0%,transparent 70%)',pointerEvents:'none'}}/>
+      <div className="flt" style={{marginBottom:20}}>
         <div style={{width:80,height:80,borderRadius:24,background:'linear-gradient(135deg,#162035,#1e2d4a)',border:'1px solid rgba(212,168,58,.35)',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 20px 50px rgba(212,168,58,.12)'}}>
           <svg width="44" height="44" viewBox="0 0 52 52" fill="none">
             <path d="M26 8L11 16v13c0 10 6.5 17.5 15 19.5C35.5 46.5 41 39 41 29V16L26 8z" stroke="#d4a83a" strokeWidth="2" fill="rgba(212,168,58,.08)" strokeLinejoin="round"/>
@@ -858,20 +134,20 @@ function Splash({onDone}){
           </svg>
         </div>
       </div>
-      <h1 style={{fontFamily:'Crimson Pro,serif',fontSize:38,color:'#fff',marginBottom:6}} className="fade-in">HuquqBot</h1>
-      <p style={{fontSize:13,...C('#64748b')}} className="fade-in">Yuridik AI yordamchi</p>
+      <h1 style={{fontFamily:'Crimson Pro,serif',fontSize:38,color:'#fff',marginBottom:6}}>HuquqBot</h1>
+      <p style={{fontSize:13,...F('#64748b')}}>Yuridik AI yordamchi</p>
       <div style={{display:'flex',gap:8,marginTop:32}}>
         {[0,1,2].map(i=><div key={i} style={{width:6,height:6,borderRadius:'50%',background:'#d4a83a',animation:`pulse 1.2s ${i*.2}s infinite ease-in-out`}}/>)}
       </div>
-      <p style={{position:'absolute',bottom:28,fontSize:11,...C('#334155')}}>lex.uz • 50,000+ qonun hujjati</p>
+      <p style={{position:'absolute',bottom:28,fontSize:11,...F('#334155')}}>lex.uz • 50,000+ qonun hujjati</p>
     </div>
   );
 }
 
-// ── Lang Select ───────────────────────────────────────────────────────────────
+// ── Lang ─────────────────────────────────────────────────────────────────────
 function LangSelect({onSelect}){
   return (
-    <div style={{height:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'#050810',padding:'0 24px'}} className="fade-in">
+    <div style={{height:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'#050810',padding:'0 24px'}} className="fi">
       <div style={{width:60,height:60,borderRadius:18,background:'linear-gradient(135deg,#162035,#1e2d4a)',border:'1px solid rgba(212,168,58,.3)',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:18}}>
         <svg width="32" height="32" viewBox="0 0 52 52" fill="none">
           <path d="M26 8L11 16v13c0 10 6.5 17.5 15 19.5C35.5 46.5 41 39 41 29V16L26 8z" stroke="#d4a83a" strokeWidth="2" fill="rgba(212,168,58,.08)" strokeLinejoin="round"/>
@@ -879,14 +155,14 @@ function LangSelect({onSelect}){
         </svg>
       </div>
       <h1 style={{fontFamily:'Crimson Pro,serif',fontSize:30,color:'#fff',marginBottom:4}}>HuquqBot</h1>
-      <p style={{fontSize:13,...C('#64748b'),marginBottom:32}}>Tilni tanlang / Выберите язык</p>
+      <p style={{fontSize:13,...F('#64748b'),marginBottom:32}}>Tilni tanlang / Выберите язык</p>
       <div style={{width:'100%',maxWidth:300,display:'flex',flexDirection:'column',gap:10}}>
         {[{l:'uz',f:'🇺🇿',n:"O'zbek tili",s:'Davom etish uchun tanlang'},{l:'ru',f:'🇷🇺',n:'Русский язык',s:'Выберите для продолжения'}].map(({l,f,n,s})=>(
-          <button key={l} onClick={()=>onSelect(l)} style={{display:'flex',alignItems:'center',gap:14,padding:'14px 16px',borderRadius:16,background:'#101829',border:'1px solid rgba(212,168,58,.2)',cursor:'pointer',width:'100%',transition:'background .15s'}} className="active:scale-95">
+          <button key={l} onClick={()=>onSelect(l)} style={{display:'flex',alignItems:'center',gap:14,padding:'14px 16px',borderRadius:16,background:'#101829',border:'1px solid rgba(212,168,58,.2)',cursor:'pointer',width:'100%'}}>
             <span style={{fontSize:26}}>{f}</span>
             <div style={{textAlign:'left'}}>
-              <div style={{fontSize:14,fontWeight:600,...C('#fff')}}>{n}</div>
-              <div style={{fontSize:11,...C('#64748b')}}>{s}</div>
+              <div style={{fontSize:14,fontWeight:600,...F('#fff')}}>{n}</div>
+              <div style={{fontSize:11,...F('#64748b')}}>{s}</div>
             </div>
           </button>
         ))}
@@ -896,55 +172,44 @@ function LangSelect({onSelect}){
 }
 
 // ── Home ──────────────────────────────────────────────────────────────────────
-function Home({lang,setLang,onChat,onOpenChat,chats,onDeleteChat,lawCount,topQuestions}){
-  const t = T[lang];
+function Home({lang,setLang,onChat,onOpenChat,chats,onDeleteChat,lawCount,topQ}){
+  const t=T[lang];
   const [query,setQuery]=useState('');
   const [results,setResults]=useState([]);
   const [searching,setSearching]=useState(false);
-  const [showUpload,setShowUpload]=useState(false);
   const [showLang,setShowLang]=useState(false);
-  const [showAllChats,setShowAllChats]=useState(false);
-  const [recentSearches]=useState(()=>S.get('hb_recent_search',[]));
+  const [showAll,setShowAll]=useState(false);
+  const recentSearches=S.get('hb_rs',[]);
   const timer=useRef(null);
   const tg=window.Telegram?.WebApp;
-
   const openUrl=url=>{if(tg?.openLink)tg.openLink(url);else window.open(url,'_blank');};
 
-  const doSearch=useCallback((q)=>{
+  useEffect(()=>{
     clearTimeout(timer.current);
-    if(q.trim().length<2){setResults([]);setSearching(false);return;}
+    if(query.trim().length<2){setResults([]);setSearching(false);return;}
     setSearching(true);
     timer.current=setTimeout(async()=>{
-      try{
-        const r=await fetch(`${API}/api/search?q=${encodeURIComponent(q)}&lang=${lang}`);
-        if(r.ok){const d=await r.json();setResults(d.results||[]);}
-      }catch{}
+      try{const r=await fetch(`${API}/api/search?q=${encodeURIComponent(query)}&lang=${lang}`);
+        if(r.ok){const d=await r.json();setResults(d.results||[]);}}catch{}
       setSearching(false);
     },400);
-  },[lang]);
-
-  useEffect(()=>{doSearch(query);},[query]);
+  },[query]);
 
   const startQ=q=>{
-    // Save recent search
-    const rs=S.get('hb_recent_search',[]);
-    const updated=[q,...rs.filter(x=>x!==q)].slice(0,5);
-    S.set('hb_recent_search',updated);
+    const rs=S.get('hb_rs',[]);
+    S.set('hb_rs',[q,...rs.filter(x=>x!==q)].slice(0,5));
     onChat(q);
   };
 
-  // Dynamic quick questions: top asked or defaults
-  const quickTitles = topQuestions.length>=6
-    ? topQuestions.slice(0,6).map(q=>q.slice(0,18)+(q.length>18?'...':''))
-    : t.quickTitles;
-  const quickQ2 = topQuestions.length>=6 ? topQuestions.slice(0,6) : t.quickQ2;
-
-  const displayChats = showAllChats ? chats : chats.slice(0,3);
+  // Quick questions: top asked OR defaults
+  const qTitles = topQ.length>=6 ? topQ.slice(0,6).map(q=>q.slice(0,20)+(q.length>20?'...':'')) : t.quickTitles;
+  const qQ2 = topQ.length>=6 ? topQ.slice(0,6) : t.quickQ2;
+  const displayChats = showAll ? chats : chats.slice(0,3);
 
   return (
-    <div className="home-wrap" style={{background:'#050810'}}>
+    <div className="hw" style={{background:'#050810'}}>
       {/* Header */}
-      <div style={{flexShrink:0,padding:'16px 16px 12px',background:'linear-gradient(180deg,#050810 60%,rgba(5,8,16,0) 100%)'}}>
+      <div style={{flexShrink:0,padding:'14px 14px 10px',background:'linear-gradient(180deg,#050810 60%,transparent 100%)'}}>
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
             <div style={{width:34,height:34,borderRadius:11,background:'linear-gradient(135deg,#162035,#1e2d4a)',border:'1px solid rgba(212,168,58,.3)',display:'flex',alignItems:'center',justifyContent:'center'}}>
@@ -955,41 +220,38 @@ function Home({lang,setLang,onChat,onOpenChat,chats,onDeleteChat,lawCount,topQue
             </div>
             <span style={{fontFamily:'Crimson Pro,serif',fontSize:22,color:'#fff'}}>{t.appName}</span>
           </div>
-          {/* Lang switcher button */}
-          <button onClick={()=>setShowLang(true)} style={{width:36,height:36,borderRadius:12,background:'#101829',border:'1px solid rgba(212,168,58,.2)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}}>
-            <span style={{fontSize:18}}>{lang==='uz'?'🇺🇿':'🇷🇺'}</span>
+          <button onClick={()=>setShowLang(true)} style={{...B({width:36,height:36,borderRadius:12,background:'#101829',border:'1px solid rgba(212,168,58,.2)',fontSize:18})}}>
+            {lang==='uz'?'🇺🇿':'🇷🇺'}
           </button>
         </div>
         {lawCount>0&&(
           <div style={{display:'flex',alignItems:'center',gap:6,marginTop:6}}>
             <div style={{width:6,height:6,borderRadius:'50%',background:'#22c55e',animation:'pulse 2s infinite'}}/>
-            <span style={{fontSize:11,...C('#64748b')}}>{lawCount.toLocaleString()} {t.lawCount} • {t.source}</span>
+            <span style={{fontSize:11,...F('#64748b')}}>{lawCount.toLocaleString()} {t.lawCount} • {t.source}</span>
           </div>
         )}
       </div>
 
-      {/* Content */}
-      <div style={{flex:1,overflowY:'auto',padding:'0 14px 90px',scrollbarWidth:'none'}}>
+      {/* Scroll area */}
+      <div style={{flex:1,overflowY:'auto',padding:'0 14px 100px',scrollbarWidth:'none'}}>
         {/* Search */}
-        <div style={{position:'relative',marginBottom:16}}>
+        <div style={{position:'relative',marginBottom:14}}>
           <span style={{position:'absolute',left:13,top:'50%',transform:'translateY(-50%)',width:17,height:17,color:'#475569',pointerEvents:'none'}}>{I.search}</span>
-          <input value={query} onChange={e=>setQuery(e.target.value)}
-            placeholder={t.search}
+          <input value={query} onChange={e=>setQuery(e.target.value)} placeholder={t.search}
             style={{width:'100%',paddingLeft:42,paddingRight:16,paddingTop:13,paddingBottom:13,borderRadius:16,background:'#101829',border:'1px solid rgba(212,168,58,.2)',fontSize:14,transition:'border-color .2s'}}
           />
           {searching&&<div style={{position:'absolute',right:14,top:'50%',transform:'translateY(-50%)',width:16,height:16,border:'2px solid #d4a83a',borderTopColor:'transparent',borderRadius:'50%'}} className="spin"/>}
         </div>
 
         {/* Recent searches */}
-        {!query && recentSearches.length>0 && (
+        {!query&&recentSearches.length>0&&(
           <div style={{marginBottom:14}}>
-            <div style={{fontSize:10,...C('#64748b'),textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600,marginBottom:8}}>{t.recentSearch}</div>
+            <div style={{fontSize:10,...F('#64748b'),textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600,marginBottom:7}}>{t.recentSearch}</div>
             <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
               {recentSearches.map((rs,i)=>(
-                <button key={i} onClick={()=>startQ(rs)}
-                  style={{display:'flex',alignItems:'center',gap:5,padding:'5px 10px',borderRadius:20,background:'#101829',border:'1px solid rgba(212,168,58,.15)',cursor:'pointer'}}>
+                <button key={i} onClick={()=>startQ(rs)} style={{...B({gap:5,padding:'5px 10px',borderRadius:20,background:'#101829',border:'1px solid rgba(212,168,58,.15)'})}}>
                   <span style={{width:11,height:11,color:'#475569'}}>{I.clock}</span>
-                  <span style={{fontSize:11,...C('#94a3b8')}}>{rs.slice(0,30)}</span>
+                  <span style={{fontSize:11,...F('#94a3b8')}}>{rs.slice(0,30)}</span>
                 </button>
               ))}
             </div>
@@ -997,24 +259,23 @@ function Home({lang,setLang,onChat,onOpenChat,chats,onDeleteChat,lawCount,topQue
         )}
 
         {/* Search results */}
-        {query.trim().length>=2 && (
-          <div style={{marginBottom:14}} className="slide-up">
-            {results.length===0&&!searching ? (
-              <div style={{textAlign:'center',padding:'24px 0',fontSize:13,...C('#475569')}}>{t.noResult}</div>
-            ) : (
+        {query.trim().length>=2&&(
+          <div style={{marginBottom:14}} className="su">
+            {results.length===0&&!searching?(
+              <div style={{textAlign:'center',padding:'24px 0',fontSize:13,...F('#475569')}}>{t.noResult}</div>
+            ):(
               <div style={{display:'flex',flexDirection:'column',gap:7}}>
                 {results.map((r,i)=>(
-                  <button key={i} onClick={()=>startQ(r.title)}
-                    style={{textAlign:'left',padding:'11px 13px',borderRadius:13,background:'#101829',border:'1px solid rgba(212,168,58,.15)',cursor:'pointer',animationDelay:`${i*.04}s`}} className="slide-up">
-                    <div style={{fontSize:13,fontWeight:500,...C('#fff'),marginBottom:3,overflow:'hidden',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical'}}>{r.title}</div>
-                    <div style={{display:'flex',alignItems:'center',gap:7}}>
-                      <span style={{fontSize:11,...C('#d4a83a')}}>{r.number||'lex.uz'}</span>
-                      {r.date&&<span style={{fontSize:11,...C('#475569')}}>• {r.date.slice(0,4)}</span>}
+                  <button key={i} onClick={()=>startQ(r.title)} style={{textAlign:'left',padding:'11px 13px',borderRadius:13,background:'#101829',border:'1px solid rgba(212,168,58,.15)',cursor:'pointer',animationDelay:`${i*.04}s`}} className="su">
+                    <div style={{fontSize:13,fontWeight:500,...F('#fff'),marginBottom:3,overflow:'hidden',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical'}}>{r.title}</div>
+                    <div style={{display:'flex',gap:7}}>
+                      <span style={{fontSize:11,...F('#d4a83a')}}>{r.number||'lex.uz'}</span>
+                      {r.date&&<span style={{fontSize:11,...F('#475569')}}>• {r.date.slice(0,4)}</span>}
                     </div>
                   </button>
                 ))}
                 {results.length>0&&(
-                  <button onClick={()=>startQ(query)} style={{padding:'11px',borderRadius:13,background:'rgba(212,168,58,.07)',border:'1px solid rgba(212,168,58,.22)',fontSize:13,fontWeight:500,...C('#f0c060'),cursor:'pointer'}}>
+                  <button onClick={()=>startQ(query)} style={{padding:'11px',borderRadius:13,background:'rgba(212,168,58,.07)',border:'1px solid rgba(212,168,58,.22)',fontSize:13,fontWeight:500,...F('#f0c060'),cursor:'pointer'}}>
                     🤖 AI: "{query}"
                   </button>
                 )}
@@ -1025,24 +286,25 @@ function Home({lang,setLang,onChat,onOpenChat,chats,onDeleteChat,lawCount,topQue
 
         {!query&&(
           <>
-            {/* Quick questions — horizontal scroll cards */}
-            <div style={{fontSize:10,...C('#94a3b8'),textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600,marginBottom:10}}>{t.quickQ}</div>
-            <div style={{display:'flex',gap:10,overflowX:'auto',paddingBottom:6,marginBottom:18,scrollbarWidth:'none'}}>
-              {quickTitles.map((title,i)=>(
-                <button key={i} onClick={()=>startQ(quickQ2[i])}
-                  style={{flexShrink:0,display:'flex',flexDirection:'column',alignItems:'flex-start',gap:10,padding:'14px 14px',borderRadius:16,background:'#101829',border:'1px solid rgba(212,168,58,.2)',width:130,cursor:'pointer',animationDelay:`${i*.05}s`}} className="slide-up">
-                  <div style={{width:36,height:36,borderRadius:10,background:'rgba(212,168,58,.1)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20}}>{t.quickIcons[i]}</div>
-                  <span style={{fontSize:12,fontWeight:500,...C('#fff'),lineHeight:1.3,textAlign:'left'}}>{title}</span>
+            {/* Quick questions - horizontal scroll, card style different from chat */}
+            <div style={{fontSize:10,...F('#94a3b8'),textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600,marginBottom:10}}>{t.quickQ}</div>
+            <div className="hscroll" style={{display:'flex',gap:10,overflowX:'auto',paddingBottom:4,marginBottom:18}}>
+              {qTitles.map((title,i)=>(
+                <button key={i} onClick={()=>startQ(qQ2[i])}
+                  style={{flexShrink:0,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:8,padding:'16px 12px',borderRadius:16,background:'linear-gradient(145deg,#101829,#0d1520)',border:'1px solid rgba(212,168,58,.18)',width:110,cursor:'pointer',animationDelay:`${i*.05}s`}} className="su">
+                  <div style={{width:42,height:42,borderRadius:12,background:'linear-gradient(135deg,rgba(212,168,58,.15),rgba(212,168,58,.05))',border:'1px solid rgba(212,168,58,.2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22}}>
+                    {t.quickIcons[i]}
+                  </div>
+                  <span style={{fontSize:11,fontWeight:500,...F('#e2e8f0'),lineHeight:1.3,textAlign:'center'}}>{title}</span>
                 </button>
               ))}
             </div>
 
             {/* Sources */}
-            <div style={{fontSize:10,...C('#94a3b8'),textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600,marginBottom:10}}>{t.sources}</div>
+            <div style={{fontSize:10,...F('#94a3b8'),textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600,marginBottom:10}}>{t.sources}</div>
             <div style={{display:'flex',flexWrap:'wrap',gap:8,marginBottom:18}}>
               {['lex.uz','my.gov.uz','soliq.uz','mehnat.uz'].map(s=>(
-                <button key={s} onClick={()=>openUrl(`https://${s}`)}
-                  style={{display:'flex',alignItems:'center',gap:5,padding:'6px 12px',borderRadius:20,background:'#101829',border:'1px solid rgba(212,168,58,.2)',fontSize:12,cursor:'pointer',...C('#e2e8f0')}}>
+                <button key={s} onClick={()=>openUrl(`https://${s}`)} style={{...B({gap:5,padding:'6px 12px',borderRadius:20,background:'#101829',border:'1px solid rgba(212,168,58,.2)',fontSize:12,...F('#e2e8f0')})}}>
                   <span style={{width:12,height:12}}>{I.globe}</span>{s}
                 </button>
               ))}
@@ -1052,24 +314,26 @@ function Home({lang,setLang,onChat,onOpenChat,chats,onDeleteChat,lawCount,topQue
             {chats.length>0&&(
               <>
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
-                  <span style={{fontSize:10,...C('#94a3b8'),textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600}}>{t.history}</span>
+                  <span style={{fontSize:10,...F('#94a3b8'),textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600}}>{t.history}</span>
                   {chats.length>3&&(
-                    <button onClick={()=>setShowAllChats(v=>!v)} style={{fontSize:11,...C('#d4a83a'),background:'none',border:'none',cursor:'pointer'}}>
-                      {showAllChats?'↑':t.viewAll+` (${chats.length})`}
+                    <button onClick={()=>setShowAll(v=>!v)} style={{...B({fontSize:11,...F('#d4a83a')})}}>
+                      {showAll?'↑':t.viewAll+` (${chats.length})`}
                     </button>
                   )}
                 </div>
                 <div style={{display:'flex',flexDirection:'column',gap:7,marginBottom:18}}>
                   {displayChats.map(c=>(
-                    <div key={c.id} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:13,background:'#101829',border:'1px solid rgba(212,168,58,.15)'}}>
-                      <div style={{width:32,height:32,borderRadius:9,background:'#162035',display:'flex',alignItems:'center',justifyContent:'center',color:'#d4a83a',flexShrink:0}}>
+                    <div key={c.id} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:13,background:'#0d1520',border:'1px solid rgba(100,116,139,.15)'}}>
+                      <div style={{width:32,height:32,borderRadius:9,background:'rgba(212,168,58,.08)',display:'flex',alignItems:'center',justifyContent:'center',color:'#d4a83a',flexShrink:0}}>
                         <span style={{width:15,height:15}}>{I.chat}</span>
                       </div>
-                      <button onClick={()=>onOpenChat(c.id)} style={{flex:1,textAlign:'left',minWidth:0,background:'none',border:'none',cursor:'pointer'}}>
-                        <div style={{fontSize:12,fontWeight:500,...C('#fff'),overflow:'hidden',whiteSpace:'nowrap',textOverflow:'ellipsis'}}>{c.title}</div>
-                        <div style={{fontSize:10,...C('#475569')}}>{new Date(c.updatedAt).toLocaleDateString()} · {c.messages?.length||0} xabar</div>
+                      <button onClick={()=>onOpenChat(c.id)} style={{...B({flex:1,justifyContent:'flex-start',textAlign:'left',minWidth:0})}}>
+                        <div>
+                          <div style={{fontSize:12,fontWeight:500,...F('#cbd5e1'),overflow:'hidden',whiteSpace:'nowrap',textOverflow:'ellipsis',maxWidth:200}}>{c.title}</div>
+                          <div style={{fontSize:10,...F('#475569')}}>{new Date(c.updatedAt).toLocaleDateString()} · {c.messages?.length||0} xabar</div>
+                        </div>
                       </button>
-                      <button onClick={()=>onDeleteChat(c.id)} style={{...btn({width:26,height:26,color:'#475569',flexShrink:0})}}>
+                      <button onClick={()=>onDeleteChat(c.id)} style={{...B({width:26,height:26,color:'#475569',flexShrink:0})}}>
                         <span style={{width:14,height:14}}>{I.trash}</span>
                       </button>
                     </div>
@@ -1081,83 +345,34 @@ function Home({lang,setLang,onChat,onOpenChat,chats,onDeleteChat,lawCount,topQue
             {/* Disclaimer */}
             <div style={{display:'flex',gap:10,padding:'13px 14px',borderRadius:14,background:'rgba(212,168,58,.04)',border:'1px solid rgba(212,168,58,.13)',marginBottom:8}}>
               <span style={{width:15,height:15,color:'#f0c060',flexShrink:0,marginTop:1}}>{I.info}</span>
-              <p style={{fontSize:11,...C('#f0c060'),lineHeight:1.6}}>{t.disclaimer}</p>
+              <p style={{fontSize:11,...F('#f0c060'),lineHeight:1.6}}>{t.disclaimer}</p>
             </div>
           </>
         )}
       </div>
 
-      {/* Floating chat button */}
+      {/* Floating chat button - full styled */}
       <button onClick={()=>onChat('')}
-        style={{position:'fixed',bottom:22,right:18,width:58,height:58,borderRadius:'50%',background:'linear-gradient(135deg,#d4a83a,#b8902a)',boxShadow:'0 6px 28px rgba(212,168,58,.4)',border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',zIndex:40}}
-        className="active:scale-90">
-        <span style={{width:26,height:26,color:'#fff'}}>{I.chat}</span>
+        style={{position:'fixed',bottom:20,right:16,width:62,height:62,borderRadius:18,background:'linear-gradient(135deg,#d4a83a,#b8902a)',boxShadow:'0 8px 32px rgba(212,168,58,.45)',border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',zIndex:40,gap:0}}>
+        <span style={{width:28,height:28,color:'#fff'}}>{I.chat}</span>
       </button>
 
       {/* Lang modal */}
       {showLang&&(
         <div style={{position:'fixed',inset:0,zIndex:50,display:'flex',alignItems:'flex-end',background:'rgba(5,8,16,.85)',backdropFilter:'blur(8px)'}} onClick={()=>setShowLang(false)}>
-          <div style={{width:'100%',background:'#0a0f1e',borderRadius:'22px 22px 0 0',padding:'20px',border:'1px solid rgba(212,168,58,.2)'}} className="slide-up" onClick={e=>e.stopPropagation()}>
+          <div style={{width:'100%',background:'#0a0f1e',borderRadius:'22px 22px 0 0',padding:'20px',border:'1px solid rgba(212,168,58,.2)'}} className="su" onClick={e=>e.stopPropagation()}>
             <p style={{fontFamily:'Crimson Pro,serif',fontSize:18,color:'#fff',marginBottom:14}}>{t.changeLang}</p>
             {[{l:'uz',f:'🇺🇿',n:"O'zbek tili"},{l:'ru',f:'🇷🇺',n:'Русский язык'}].map(({l,f,n})=>(
               <button key={l} onClick={()=>{S.set('hb_lang',l);setLang(l);setShowLang(false);}}
                 style={{display:'flex',alignItems:'center',gap:12,padding:'12px 14px',borderRadius:13,background:lang===l?'rgba(212,168,58,.12)':'#101829',border:`1px solid rgba(212,168,58,${lang===l?.35:.15})`,cursor:'pointer',width:'100%',marginBottom:8}}>
                 <span style={{fontSize:22}}>{f}</span>
-                <span style={{fontSize:14,fontWeight:500,...C(lang===l?'#f0c060':'#fff')}}>{n}</span>
+                <span style={{fontSize:14,fontWeight:500,...F(lang===l?'#f0c060':'#fff')}}>{n}</span>
                 {lang===l&&<span style={{marginLeft:'auto',fontSize:16,color:'#d4a83a'}}>✓</span>}
               </button>
             ))}
           </div>
         </div>
       )}
-
-      {showUpload&&<UploadModal lang={lang} onClose={()=>setShowUpload(false)} onResult={q=>{setShowUpload(false);onChat(q);}}/>}
-    </div>
-  );
-}
-
-// ── Upload Modal ──────────────────────────────────────────────────────────────
-function UploadModal({lang,onClose,onResult}){
-  const t=T[lang];
-  const [uploading,setUploading]=useState(false);
-  const [status,setStatus]=useState('');
-  const fileRef=useRef();
-
-  const handleFile=async file=>{
-    if(!file)return;
-    setUploading(true);
-    setStatus(lang==='uz'?'Fayl tahlil qilinmoqda...':'Анализ файла...');
-    const fd=new FormData();fd.append('file',file);fd.append('lang',lang);
-    try{
-      const r=await fetch(`${API}/api/upload`,{method:'POST',body:fd});
-      const d=await r.json();
-      if(d.question){onResult(d.question);}
-      else{setStatus(t.err);setUploading(false);}
-    }catch{setStatus(t.err);setUploading(false);}
-  };
-
-  return (
-    <div style={{position:'fixed',inset:0,zIndex:50,display:'flex',alignItems:'flex-end',background:'rgba(5,8,16,.88)',backdropFilter:'blur(8px)'}}>
-      <div style={{width:'100%',background:'#0a0f1e',borderRadius:'22px 22px 0 0',padding:'22px',border:'1px solid rgba(212,168,58,.2)'}} className="slide-up">
-        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:18}}>
-          <h3 style={{fontFamily:'Crimson Pro,serif',fontSize:20,color:'#fff'}}>{t.uploadDoc}</h3>
-          <button onClick={onClose} style={{...btn({width:30,height:30,borderRadius:'50%',background:'#101829',fontSize:18,color:'#94a3b8'})}}>×</button>
-        </div>
-        {uploading?(
-          <div style={{textAlign:'center',padding:'28px 0'}}>
-            <div style={{width:38,height:38,border:'2px solid #d4a83a',borderTopColor:'transparent',borderRadius:'50%',margin:'0 auto 14px'}} className="spin"/>
-            <p style={{fontSize:13,...C('#94a3b8')}}>{status}</p>
-          </div>
-        ):(
-          <div onClick={()=>fileRef.current?.click()} onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();handleFile(e.dataTransfer.files[0]);}}
-            style={{border:'2px dashed rgba(212,168,58,.22)',borderRadius:14,padding:'28px',textAlign:'center',cursor:'pointer'}}>
-            <div style={{width:38,height:38,color:'#d4a83a',margin:'0 auto 10px'}}>{I.upload}</div>
-            <p style={{fontSize:13,...C('#fff'),marginBottom:5}}>{t.dragDrop}</p>
-            <p style={{fontSize:11,...C('#475569')}}>{t.supported}</p>
-            <input ref={fileRef} type="file" accept=".pdf,.docx,.doc" style={{display:'none'}} onChange={e=>handleFile(e.target.files[0])}/>
-          </div>
-        )}
-      </div>
     </div>
   );
 }
@@ -1169,18 +384,19 @@ function Chat({lang,chatId,initialQ,onBack,onSave}){
   const [input,setInput]=useState('');
   const [busy,setBusy]=useState(false);
   const [steps,setSteps]=useState([]);
-  const [showUpload,setShowUpload]=useState(false);
+  const [uploading,setUploading]=useState(false);
   const bottomRef=useRef();
   const inputRef=useRef();
+  const fileRef=useRef();
   const tg=window.Telegram?.WebApp;
 
   useEffect(()=>{
     const saved=S.get(`chat_${chatId}`,null);
-    if(saved?.messages&&saved.messages.length>0){setMessages(saved.messages);}
-    else if(initialQ){send(initialQ);}
+    if(saved?.messages?.length>0){setMessages(saved.messages);}
+    else if(initialQ){sendMsg(initialQ);}
   },[chatId]);
 
-  useEffect(()=>{bottomRef.current?.scrollIntoView({behavior:'smooth'});},[messages,steps]);
+  useEffect(()=>{bottomRef.current?.scrollIntoView({behavior:'smooth'});},[messages,steps,uploading]);
 
   const saveChat=(msgs,firstQ)=>{
     const title=firstQ?.slice(0,50)||msgs[0]?.content?.slice(0,50)||'Chat';
@@ -1188,14 +404,14 @@ function Chat({lang,chatId,initialQ,onBack,onSave}){
     S.set(`chat_${chatId}`,data);onSave(data);
   };
 
-  const send=async text=>{
+  const sendMsg=async text=>{
     if(!text?.trim()||busy)return;
     const q=text.trim();
     setInput('');
     if(inputRef.current)inputRef.current.style.height='auto';
     setBusy(true);
-    const newMsgs=[...messages,{role:'user',content:q,ts:Date.now()}];
-    setMessages(newMsgs);
+    const nm=[...messages,{role:'user',content:q,ts:Date.now()}];
+    setMessages(nm);
     setSteps([t.analyzing,t.searching,t.aiThinking].map((s,i)=>({text:s,state:i===0?'active':'pending'})));
     await sleep(500);
     setSteps(s=>s.map((x,i)=>i===0?{...x,state:'done'}:i===1?{...x,state:'active'}:x));
@@ -1208,7 +424,7 @@ function Chat({lang,chatId,initialQ,onBack,onSave}){
       setSteps(s=>s.map((x,i)=>i<=1?{...x,state:'done'}:{...x,state:'active'}));
       await sleep(350);setSteps([]);
       const ans={role:'assistant',content:d.answer,sources:d.sources,id:`msg_${Date.now()}`,ts:Date.now()};
-      const all=[...newMsgs,ans];
+      const all=[...nm,ans];
       setMessages(all);saveChat(all,q);
       if(tg?.HapticFeedback)tg.HapticFeedback.impactOccurred('light');
     }catch{
@@ -1218,26 +434,68 @@ function Chat({lang,chatId,initialQ,onBack,onSave}){
     setBusy(false);
   };
 
+  const handleFile=async file=>{
+    if(!file||busy)return;
+    setUploading(true);
+    // Show file bubble in chat
+    const fileName=file.name;
+    const fileMsgId=`file_${Date.now()}`;
+    const fileMsg={role:'user',content:null,fileMsg:true,fileName,ts:Date.now(),id:fileMsgId};
+    const nm=[...messages,fileMsg];
+    setMessages(nm);
+    setBusy(true);
+    setSteps([t.analyzingDoc,''].map((s,i)=>({text:s,state:i===0?'active':'pending'})));
+    try{
+      const fd=new FormData();fd.append('file',file);fd.append('lang',lang);
+      const r=await fetch(`${API}/api/upload`,{method:'POST',body:fd});
+      const d=await r.json();
+      setSteps([]);
+      if(d.answer){
+        const ans={role:'assistant',content:d.answer,sources:d.sources||[],id:`msg_${Date.now()}`,ts:Date.now()};
+        const all=[...nm,ans];
+        setMessages(all);saveChat(all,fileName);
+        // If more parts, show as follow-up questions automatically
+        if(d.follow_up_questions?.length>0){
+          // Continue analyzing remaining parts
+          for(const fq of d.follow_up_questions){
+            await sleep(800);
+            setSteps([{text:t.analyzingDoc,state:'active'}]);
+            const r2=await fetch(`${API}/api/ask`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:fq,lang,is_doc:true,history:[]})});
+            const d2=await r2.json();
+            setSteps([]);
+            if(d2.answer){
+              const ans2={role:'assistant',content:d2.answer,sources:d2.sources||[],id:`msg_${Date.now()}`,ts:Date.now()};
+              setMessages(m=>[...m,ans2]);
+            }
+          }
+        }
+      }else{
+        setMessages(m=>[...m,{role:'assistant',content:null,error:d.error||t.err,ts:Date.now()}]);
+      }
+    }catch{
+      setSteps([]);
+      setMessages(m=>[...m,{role:'assistant',content:null,error:t.err,ts:Date.now()}]);
+    }
+    setUploading(false);setBusy(false);
+  };
+
   const openUrl=url=>{if(tg?.openLink)tg.openLink(url);else window.open(url,'_blank');};
-  const sendFeedback=async(msgId,val)=>{
+  const sendFb=async(msgId,val)=>{
     try{await fetch(`${API}/api/feedback`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({msgId,val,lang})});}catch{}
   };
 
-  const handleUploadResult=q=>{setShowUpload(false);send(q);};
-
   return (
-    <div className="chat-wrap" style={{background:'#050810'}}>
+    <div className="cw" style={{background:'#050810'}}>
       {/* Header */}
-      <div style={{flexShrink:0,display:'flex',alignItems:'center',gap:10,padding:'12px 14px',borderBottom:'1px solid rgba(212,168,58,.12)'}}>
-        <button onClick={onBack} style={{...btn({width:36,height:36,borderRadius:12,background:'#101829',border:'1px solid rgba(212,168,58,.2)',color:'#94a3b8'})}}>
+      <div style={{flexShrink:0,display:'flex',alignItems:'center',gap:10,padding:'12px 14px',borderBottom:'1px solid rgba(212,168,58,.1)'}}>
+        <button onClick={onBack} style={{...B({width:36,height:36,borderRadius:12,background:'#101829',border:'1px solid rgba(212,168,58,.2)',color:'#94a3b8'})}}>
           <span style={{width:20,height:20}}>{I.back}</span>
         </button>
         <div style={{flex:1}}>
-          <div style={{fontSize:14,fontWeight:500,...C('#fff')}}>{t.chatTitle}</div>
-          <div style={{fontSize:10,...C('#475569')}}>LEX.UZ · MY.GOV.UZ · AI</div>
+          <div style={{fontSize:14,fontWeight:500,...F('#fff')}}>{t.chatTitle}</div>
+          <div style={{fontSize:10,...F('#475569')}}>LEX.UZ · MY.GOV.UZ · AI</div>
         </div>
-        <button onClick={()=>{S.del(`chat_${chatId}`);onBack();}}
-          style={{...btn({width:36,height:36,borderRadius:12,background:'#101829',border:'1px solid rgba(212,168,58,.2)',color:'#475569'})}}>
+        <button onClick={()=>{S.del(`chat_${chatId}`);onBack();}} style={{...B({width:36,height:36,borderRadius:12,background:'#101829',border:'1px solid rgba(212,168,58,.2)',color:'#475569'})}}>
           <span style={{width:15,height:15}}>{I.plus}</span>
         </button>
       </div>
@@ -1245,25 +503,40 @@ function Chat({lang,chatId,initialQ,onBack,onSave}){
       {/* Messages */}
       <div style={{flex:1,overflowY:'auto',padding:'14px',display:'flex',flexDirection:'column',gap:10,scrollbarWidth:'none'}}>
         {messages.map((m,i)=>(
-          <div key={i} style={{display:'flex',justifyContent:m.role==='user'?'flex-end':'flex-start'}} className="slide-up">
+          <div key={i} style={{display:'flex',justifyContent:m.role==='user'?'flex-end':'flex-start'}} className="su">
             {m.role==='user'?(
-              <div style={{maxWidth:'80%',padding:'11px 14px',borderRadius:'17px 17px 4px 17px',background:'linear-gradient(135deg,#1e3a6e,#162d58)',border:'1px solid rgba(100,130,200,.2)',fontSize:14,...C('#fff'),lineHeight:1.55}}>
-                {m.content}
-              </div>
+              m.fileMsg?(
+                /* File bubble */
+                <div style={{maxWidth:'75%',padding:'10px 13px',borderRadius:'16px 16px 4px 16px',background:'linear-gradient(135deg,#1e3a6e,#162d58)',border:'1px solid rgba(100,130,200,.2)',display:'flex',alignItems:'center',gap:9}}>
+                  <div style={{width:34,height:34,borderRadius:9,background:'rgba(212,168,58,.15)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                    <span style={{width:18,height:18,color:'#d4a83a'}}>{I.doc}</span>
+                  </div>
+                  <div>
+                    <div style={{fontSize:12,fontWeight:500,...F('#fff'),maxWidth:160,overflow:'hidden',whiteSpace:'nowrap',textOverflow:'ellipsis'}}>{m.fileName}</div>
+                    <div style={{fontSize:10,...F('#93c5fd')}}>{t.docUploaded}</div>
+                  </div>
+                </div>
+              ):(
+                <div style={{maxWidth:'80%',padding:'11px 14px',borderRadius:'17px 17px 4px 17px',background:'linear-gradient(135deg,#1e3a6e,#162d58)',border:'1px solid rgba(100,130,200,.2)',fontSize:14,...F('#fff'),lineHeight:1.55}}>
+                  {m.content}
+                </div>
+              )
             ):m.error?(
-              <div style={{maxWidth:'80%',padding:'11px 13px',borderRadius:'17px 17px 17px 4px',background:'#101829',border:'1px solid rgba(239,68,68,.2)',fontSize:13,...C('#f87171')}}>⚠️ {m.error}</div>
+              <div style={{maxWidth:'80%',padding:'11px 13px',borderRadius:'17px 17px 17px 4px',background:'#101829',border:'1px solid rgba(239,68,68,.2)',fontSize:13,...F('#f87171')}}>⚠️ {m.error}</div>
             ):(
-              <AnsCard answer={m.content} sources={m.sources} lang={lang} openUrl={openUrl} t={t} msgId={m.id} onFeedback={sendFeedback}/>
+              <AnsCard answer={m.content} sources={m.sources} lang={lang} openUrl={openUrl} t={t} msgId={m.id} onFb={sendFb}/>
             )}
           </div>
         ))}
+
+        {/* Steps */}
         {steps.length>0&&(
-          <div style={{display:'flex'}} className="slide-up">
+          <div style={{display:'flex'}} className="su">
             <div style={{padding:'11px 13px',borderRadius:'17px 17px 17px 4px',background:'#101829',border:'1px solid rgba(212,168,58,.18)',minWidth:190}}>
-              {steps.map((s,i)=>(
+              {steps.filter(s=>s.text).map((s,i)=>(
                 <div key={i} style={{display:'flex',alignItems:'center',gap:9,padding:'4px 0'}}>
                   <div style={{width:7,height:7,borderRadius:'50%',flexShrink:0,background:s.state==='done'?'#22c55e':s.state==='active'?'#d4a83a':'#162035',animation:s.state==='active'?'pulse 1s infinite':undefined}}/>
-                  <span style={{fontSize:12,...C(s.state==='done'?'#4ade80':s.state==='active'?'#fff':'#475569')}}>{s.text}</span>
+                  <span style={{fontSize:12,...F(s.state==='done'?'#4ade80':s.state==='active'?'#fff':'#475569')}}>{s.text}</span>
                 </div>
               ))}
             </div>
@@ -1273,91 +546,83 @@ function Chat({lang,chatId,initialQ,onBack,onSave}){
       </div>
 
       {/* Input */}
-      <div style={{flexShrink:0,padding:'8px 12px 10px',borderTop:'1px solid rgba(212,168,58,.12)'}}>
+      <div style={{flexShrink:0,padding:'8px 12px 10px',borderTop:'1px solid rgba(212,168,58,.1)'}}>
         <div style={{display:'flex',alignItems:'flex-end',gap:8,padding:'8px 10px',borderRadius:20,background:'#101829',border:'1px solid rgba(212,168,58,.2)'}}>
-          {/* Attach file button */}
-          <button onClick={()=>setShowUpload(true)}
-            style={{...btn({width:34,height:34,borderRadius:10,background:'rgba(212,168,58,.08)',color:'#d4a83a',flexShrink:0})}}>
+          {/* Attach */}
+          <button onClick={()=>fileRef.current?.click()} disabled={busy}
+            style={{...B({width:34,height:34,borderRadius:10,background:'rgba(212,168,58,.08)',color:'#d4a83a',flexShrink:0,opacity:busy?.5:1})}}>
             <span style={{width:17,height:17}}>{I.attach}</span>
           </button>
+          <input ref={fileRef} type="file" accept=".pdf,.docx,.doc" style={{display:'none'}} onChange={e=>handleFile(e.target.files[0])}/>
           <textarea ref={inputRef} value={input} onChange={e=>setInput(e.target.value)}
             placeholder={t.placeholder} rows={1}
-            onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send(input);}}}
+            onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg(input);}}}
             onInput={e=>{e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,100)+'px';}}
-            style={{flex:1,background:'transparent',border:'none',fontSize:14,...C('#fff'),lineHeight:1.5,resize:'none',maxHeight:100,minHeight:22}}
+            style={{flex:1,background:'transparent',border:'none',fontSize:14,...F('#fff'),lineHeight:1.5,resize:'none',maxHeight:100,minHeight:22}}
           />
-          <button onClick={()=>send(input)} disabled={busy||!input.trim()}
-            style={{...btn({width:36,height:36,borderRadius:'50%',background:busy||!input.trim()?'#162035':'linear-gradient(135deg,#d4a83a,#b8902a)',flexShrink:0,opacity:busy||!input.trim()?.5:1,transition:'all .2s'})}}>
-            <span style={{width:15,height:15,...C('#fff')}}>{I.send}</span>
+          <button onClick={()=>sendMsg(input)} disabled={busy||!input.trim()}
+            style={{...B({width:36,height:36,borderRadius:'50%',background:busy||!input.trim()?'#162035':'linear-gradient(135deg,#d4a83a,#b8902a)',flexShrink:0,opacity:busy||!input.trim()?.5:1,transition:'all .2s'})}}>
+            <span style={{width:15,height:15,...F('#fff')}}>{I.send}</span>
           </button>
         </div>
       </div>
-
-      {showUpload&&<UploadModal lang={lang} onClose={()=>setShowUpload(false)} onResult={handleUploadResult}/>}
     </div>
   );
 }
 
 // ── Answer Card ───────────────────────────────────────────────────────────────
-function AnsCard({answer,sources,lang,openUrl,t,msgId,onFeedback}){
+function AnsCard({answer,sources,lang,openUrl,t,msgId,onFb}){
   const [fb,setFb]=useState(null);
   const [copied,setCopied]=useState(false);
   const [shared,setShared]=useState(false);
   if(!answer)return null;
 
-  const confS = answer.confidence==='high'
-    ?{color:'#4ade80',bg:'rgba(34,197,94,.1)',border:'rgba(34,197,94,.2)'}
-    :answer.confidence==='medium'
-    ?{color:'#f0c060',bg:'rgba(212,168,58,.1)',border:'rgba(212,168,58,.2)'}
-    :{color:'#f87171',bg:'rgba(239,68,68,.1)',border:'rgba(239,68,68,.2)'};
-  const confText = answer.confidence==='high'?t.highConf:answer.confidence==='medium'?t.medConf:t.lowConf;
+  const cs=answer.confidence==='high'?{c:'#4ade80',b:'rgba(34,197,94,.1)',br:'rgba(34,197,94,.2)'}
+    :answer.confidence==='medium'?{c:'#f0c060',b:'rgba(212,168,58,.1)',br:'rgba(212,168,58,.2)'}
+    :{c:'#f87171',b:'rgba(239,68,68,.1)',br:'rgba(239,68,68,.2)'};
+  const ct=answer.confidence==='high'?t.highConf:answer.confidence==='medium'?t.medConf:t.lowConf;
 
-  const copyText=()=>{
-    const txt=`⚖️ ${answer.category}\n\n${answer.simpleAnswer||''}\n\n📌 ${answer.legalBasis||''}\n\n@yuridikAIbot`;
-    navigator.clipboard?.writeText(txt).then(()=>{setCopied(true);setTimeout(()=>setCopied(false),2000);});
+  const copy=()=>{
+    const tx=`⚖️ ${answer.category}\n\n${answer.simpleAnswer||''}\n\n📌 ${answer.legalBasis||''}\n\n@yuridikAIbot`;
+    navigator.clipboard?.writeText(tx).then(()=>{setCopied(true);setTimeout(()=>setCopied(false),2000);});
   };
-
-  const shareText=()=>{
-    const txt=`⚖️ HuquqBot javob:\n\n${answer.simpleAnswer||''}\n\n📌 ${answer.legalBasis||''}\n\nlex.uz da tekshiring`;
-    if(navigator.share){navigator.share({text:txt}).catch(()=>{});}
-    else{navigator.clipboard?.writeText(txt).then(()=>{setShared(true);setTimeout(()=>setShared(false),2000);});}
+  const share=()=>{
+    const tx=`⚖️ HuquqBot:\n\n${answer.simpleAnswer||''}\n\n📌 ${answer.legalBasis||''}\n\nlex.uz`;
+    if(navigator.share)navigator.share({text:tx}).catch(()=>{});
+    else navigator.clipboard?.writeText(tx).then(()=>{setShared(true);setTimeout(()=>setShared(false),2000);});
   };
-
-  const handleFb=val=>{
-    setFb(val);
-    onFeedback?.(msgId,val);
-  };
+  const doFb=v=>{setFb(v);onFb?.(msgId,v);};
 
   return (
-    <div style={{maxWidth:'90%',width:'90%'}}>
-      <div style={{padding:'13px',borderRadius:'17px 17px 17px 4px',background:'#101829',border:'1px solid rgba(212,168,58,.2)'}}>
+    <div style={{maxWidth:'92%',width:'92%'}}>
+      <div style={{padding:'13px',borderRadius:'17px 17px 17px 4px',background:'#101829',border:'1px solid rgba(212,168,58,.18)'}}>
         {/* Top */}
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:9}}>
           <div style={{display:'flex',alignItems:'center',gap:6}}>
             <span style={{fontSize:18}}>{answer.icon||'⚖️'}</span>
-            <span style={{fontSize:11,fontWeight:600,...C('#d4a83a'),textTransform:'uppercase',letterSpacing:'0.05em'}}>{answer.category}</span>
+            <span style={{fontSize:11,fontWeight:600,...F('#d4a83a'),textTransform:'uppercase',letterSpacing:'0.05em'}}>{answer.category}</span>
           </div>
-          <span style={{fontSize:10,padding:'2px 7px',borderRadius:20,color:confS.color,background:confS.bg,border:`1px solid ${confS.border}`}}>{confText}</span>
+          <span style={{fontSize:10,padding:'2px 7px',borderRadius:20,color:cs.c,background:cs.b,border:`1px solid ${cs.br}`}}>{ct}</span>
         </div>
 
         {/* Legal basis */}
         {answer.legalBasis&&(
           <div style={{display:'flex',gap:7,marginBottom:9,padding:'7px 9px',borderRadius:9,background:'rgba(212,168,58,.05)',border:'1px solid rgba(212,168,58,.1)'}}>
-            <span style={{fontSize:11,...C('#d4a83a'),flexShrink:0}}>📌</span>
-            <span style={{fontSize:12,...C('#e2e8f0'),lineHeight:1.4}}>{answer.legalBasis}</span>
+            <span style={{fontSize:11,...F('#d4a83a'),flexShrink:0}}>📌</span>
+            <span style={{fontSize:12,...F('#e2e8f0'),lineHeight:1.4}}>{answer.legalBasis}</span>
           </div>
         )}
 
-        {/* Answer */}
-        <p style={{fontSize:14,...C('#e2e8f0'),lineHeight:1.65,marginBottom:9}} dangerouslySetInnerHTML={{__html:(answer.simpleAnswer||'').replace(/\n/g,'<br/>')}}/>
+        {/* Answer text */}
+        <p style={{fontSize:14,...F('#e2e8f0'),lineHeight:1.65,marginBottom:(answer.steps||[]).length?9:0}} dangerouslySetInnerHTML={{__html:(answer.simpleAnswer||'').replace(/\n/g,'<br/>')}}/>
 
         {/* Steps */}
         {(answer.steps||[]).length>0&&(
           <div style={{display:'flex',flexDirection:'column',gap:7,marginBottom:9}}>
             {answer.steps.map((s,i)=>(
               <div key={i} style={{display:'flex',alignItems:'flex-start',gap:9}}>
-                <span style={{width:19,height:19,borderRadius:'50%',background:'rgba(212,168,58,.12)',fontSize:10,fontWeight:600,...C('#f0c060'),display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:2}}>{i+1}</span>
-                <span style={{fontSize:13,...C('#e2e8f0'),lineHeight:1.5}}>{s}</span>
+                <span style={{width:19,height:19,borderRadius:'50%',background:'rgba(212,168,58,.12)',fontSize:10,fontWeight:600,...F('#f0c060'),display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:2}}>{i+1}</span>
+                <span style={{fontSize:13,...F('#e2e8f0'),lineHeight:1.5}}>{s}</span>
               </div>
             ))}
           </div>
@@ -1366,16 +631,15 @@ function AnsCard({answer,sources,lang,openUrl,t,msgId,onFeedback}){
         {/* Sources */}
         {(sources||[]).length>0&&(
           <div style={{borderTop:'1px solid rgba(212,168,58,.1)',paddingTop:9,marginTop:9}}>
-            <div style={{fontSize:10,...C('#64748b'),textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:7}}>{t.officialSrc}</div>
+            <div style={{fontSize:10,...F('#64748b'),textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:7}}>{t.officialSrc}</div>
             {sources.map((s,i)=>(
               <div key={i} style={{marginBottom:7}}>
-                <button onClick={()=>openUrl(s.url)} style={{...btn({justifyContent:'flex-start',gap:5,fontSize:12,...C('#d4a83a'),marginBottom:4,width:'100%',textAlign:'left'})}}>
+                <button onClick={()=>openUrl(s.url)} style={{...B({justifyContent:'flex-start',gap:5,fontSize:12,...F('#d4a83a'),marginBottom:4,width:'100%',textAlign:'left'})}}>
                   <span style={{width:12,height:12,flexShrink:0}}>{I.link}</span>
                   <span style={{overflow:'hidden',whiteSpace:'nowrap',textOverflow:'ellipsis'}}>{s.title}</span>
                 </button>
-                <button onClick={()=>openUrl(s.url)} style={{...btn({gap:5,fontSize:11,...C('#94a3b8'),background:'rgba(212,168,58,.05)',border:'1px solid rgba(212,168,58,.13)',borderRadius:8,padding:'4px 9px'})}}>
-                  <span style={{width:10,height:10}}>{I.globe}</span>
-                  {t.readFull} →
+                <button onClick={()=>openUrl(s.url)} style={{...B({gap:5,fontSize:11,...F('#94a3b8'),background:'rgba(212,168,58,.05)',border:'1px solid rgba(212,168,58,.13)',borderRadius:8,padding:'4px 9px'})}}>
+                  <span style={{width:10,height:10}}>{I.globe}</span>{t.readFull} →
                 </button>
               </div>
             ))}
@@ -1385,32 +649,28 @@ function AnsCard({answer,sources,lang,openUrl,t,msgId,onFeedback}){
         {/* Warning */}
         {answer.warning&&answer.warning!=='null'&&(
           <div style={{display:'flex',gap:7,marginTop:9,paddingTop:9,borderTop:'1px solid rgba(212,168,58,.1)'}}>
-            <span style={{width:12,height:12,...C('#f0c060'),flexShrink:0,marginTop:2}}>{I.info}</span>
-            <span style={{fontSize:12,...C('#f0c060'),lineHeight:1.5}}>{answer.warning}</span>
+            <span style={{width:12,height:12,...F('#f0c060'),flexShrink:0,marginTop:2}}>{I.info}</span>
+            <span style={{fontSize:12,...F('#f0c060'),lineHeight:1.5}}>{answer.warning}</span>
           </div>
         )}
 
-        {/* Actions: feedback + copy + share */}
+        {/* Actions */}
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:10,paddingTop:9,borderTop:'1px solid rgba(212,168,58,.08)'}}>
-          {/* Feedback */}
           <div style={{display:'flex',alignItems:'center',gap:5}}>
-            <span style={{fontSize:11,...C('#475569')}}>{t.feedbackQ}</span>
-            <button onClick={()=>handleFb('up')} style={{...btn({width:27,height:27,borderRadius:8,background:fb==='up'?'rgba(34,197,94,.15)':'rgba(212,168,58,.05)',border:`1px solid ${fb==='up'?'rgba(34,197,94,.3)':'rgba(212,168,58,.1)'}`,transition:'all .2s'})}}>
-              <span style={{width:12,height:12,...C(fb==='up'?'#4ade80':'#64748b')}}>{I.thumbUp}</span>
+            <span style={{fontSize:10,...F('#475569')}}>{t.feedbackQ}</span>
+            <button onClick={()=>doFb('up')} style={{...B({width:27,height:27,borderRadius:8,background:fb==='up'?'rgba(34,197,94,.15)':'rgba(212,168,58,.05)',border:`1px solid ${fb==='up'?'rgba(34,197,94,.3)':'rgba(212,168,58,.1)'}`,transition:'all .2s'})}}>
+              <span style={{width:12,height:12,...F(fb==='up'?'#4ade80':'#64748b')}}>{I.tUp}</span>
             </button>
-            <button onClick={()=>handleFb('down')} style={{...btn({width:27,height:27,borderRadius:8,background:fb==='down'?'rgba(239,68,68,.15)':'rgba(212,168,58,.05)',border:`1px solid ${fb==='down'?'rgba(239,68,68,.3)':'rgba(212,168,58,.1)'}`,transition:'all .2s'})}}>
-              <span style={{width:12,height:12,...C(fb==='down'?'#f87171':'#64748b')}}>{I.thumbDown}</span>
+            <button onClick={()=>doFb('down')} style={{...B({width:27,height:27,borderRadius:8,background:fb==='down'?'rgba(239,68,68,.15)':'rgba(212,168,58,.05)',border:`1px solid ${fb==='down'?'rgba(239,68,68,.3)':'rgba(212,168,58,.1)'}`,transition:'all .2s'})}}>
+              <span style={{width:12,height:12,...F(fb==='down'?'#f87171':'#64748b')}}>{I.tDn}</span>
             </button>
           </div>
-          {/* Copy + Share */}
           <div style={{display:'flex',gap:5}}>
-            <button onClick={copyText} style={{...btn({gap:4,fontSize:11,...C(copied?'#4ade80':'#94a3b8'),background:'rgba(212,168,58,.05)',border:'1px solid rgba(212,168,58,.12)',borderRadius:8,padding:'4px 8px',transition:'color .2s'})}}>
-              <span style={{width:11,height:11}}>{I.copy}</span>
-              {copied?t.copied:t.copyAnswer}
+            <button onClick={copy} style={{...B({gap:4,fontSize:11,...F(copied?'#4ade80':'#94a3b8'),background:'rgba(212,168,58,.05)',border:'1px solid rgba(212,168,58,.12)',borderRadius:8,padding:'4px 8px',transition:'color .2s'})}}>
+              <span style={{width:11,height:11}}>{I.copy}</span>{copied?t.copied:t.copyAnswer}
             </button>
-            <button onClick={shareText} style={{...btn({gap:4,fontSize:11,...C(shared?'#4ade80':'#94a3b8'),background:'rgba(212,168,58,.05)',border:'1px solid rgba(212,168,58,.12)',borderRadius:8,padding:'4px 8px',transition:'color .2s'})}}>
-              <span style={{width:11,height:11}}>{I.share}</span>
-              {shared?'✓':t.shareChat}
+            <button onClick={share} style={{...B({gap:4,fontSize:11,...F(shared?'#4ade80':'#94a3b8'),background:'rgba(212,168,58,.05)',border:'1px solid rgba(212,168,58,.12)',borderRadius:8,padding:'4px 8px',transition:'color .2s'})}}>
+              <span style={{width:11,height:11}}>{I.share}</span>{shared?'✓':t.shareChat}
             </button>
           </div>
         </div>
@@ -1435,20 +695,20 @@ function App(){
     if(tg){tg.ready();tg.expand();tg.setHeaderColor?.('#050810');tg.setBackgroundColor?.('#050810');}
     fetch(`${API}/api/stats`).then(r=>r.json()).then(d=>{
       if(d.total_laws)setLawCount(d.total_laws);
-      if(d.top_questions)setTopQ(d.top_questions);
+      if(d.top_questions){setTopQ(d.top_questions);S.set('hb_top_q',d.top_questions);}
     }).catch(()=>{});
   },[]);
 
-  const handleSetLang=l=>{S.set('hb_lang',l);setLang(l);};
+  const setLangSave=l=>{S.set('hb_lang',l);setLang(l);};
   const startChat=q=>{const id=`chat_${Date.now()}`;setChatId(id);setInitialQ(q||null);setScreen('chat');};
   const openChat=id=>{setChatId(id);setInitialQ(null);setScreen('chat');};
-  const saveChat=data=>{setChats(prev=>{const f=prev.filter(c=>c.id!==data.id);const u=[data,...f];S.set('hb_chats',u);return u;});};
+  const saveChat=data=>{setChats(prev=>{const u=[data,...prev.filter(c=>c.id!==data.id)];S.set('hb_chats',u);return u;});};
   const deleteChat=id=>{S.del(`chat_${id}`);setChats(prev=>{const u=prev.filter(c=>c.id!==id);S.set('hb_chats',u);return u;});};
 
   if(splash)return <Splash onDone={()=>setSplash(false)}/>;
-  if(!lang)return <LangSelect onSelect={handleSetLang}/>;
+  if(!lang)return <LangSelect onSelect={setLangSave}/>;
   if(screen==='chat')return <Chat lang={lang} chatId={chatId} initialQ={initialQ} onBack={()=>{setScreen('home');setInitialQ(null);}} onSave={saveChat}/>;
-  return <Home lang={lang} setLang={handleSetLang} onChat={startChat} onOpenChat={openChat} chats={chats} onDeleteChat={deleteChat} lawCount={lawCount} topQuestions={topQ}/>;
+  return <Home lang={lang} setLang={setLangSave} onChat={startChat} onOpenChat={openChat} chats={chats} onDeleteChat={deleteChat} lawCount={lawCount} topQ={topQ}/>;
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);

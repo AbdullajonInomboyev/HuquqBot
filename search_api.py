@@ -71,8 +71,35 @@ def clean_html(text):
     return text.strip()
 
 def search_laws(query, limit=MAX_RESULTS):
-    words = [w for w in re.split(r'\s+', query.strip().lower()) if len(w) > 2]
-    if not words: return []
+    """
+    Yaxshilangan qidiruv:
+    - Savol tilini aniqlaydi (uz/ru)
+    - Kalit so'zlarni chiqaradi (stop words olib tashlanadi)
+    - To'liq ibora > alohida so'zlar > matn
+    - Score: title > text
+    """
+    # Stop words (yuridik savol uchun muhim bo'lmagan so'zlar)
+    stop_uz = {'uchun','nima','qanday','necha','bo\'ladi','kerak','olsam','qilsa',
+               'men','sen','u','biz','siz','ular','bu','shu','va','yoki','ham',
+               'da','ga','dan','ni','ning','de','deb','qil','kabi','bor','yo\'q'}
+    stop_ru = {'для','что','как','сколько','если','нужно','можно','нельзя',
+               'я','ты','он','мы','вы','они','это','такой','или','и','но',
+               'в','на','с','по','за','при','от','до','из','к'}
+
+    raw_words = re.split(r'\s+', query.strip().lower())
+    is_ru = len(re.findall(r'[а-яё]', query)) > len(re.findall(r'[a-z]', query))
+    stop = stop_ru if is_ru else stop_uz
+
+    # Kalit so'zlar: uzun va stop bo'lmagan so'zlar
+    keywords = [w for w in raw_words if len(w) > 3 and w not in stop]
+    # Agar kalit so'z yo'q bo'lsa, uzunroq so'zlarni ol
+    if not keywords:
+        keywords = [w for w in raw_words if len(w) > 2]
+    if not keywords:
+        return []
+
+    logger.info(f"Kalit so'zlar: {keywords}")
+
     try:
         conn = get_db()
     except Exception as e:
@@ -81,27 +108,33 @@ def search_laws(query, limit=MAX_RESULTS):
 
     results = {}
 
-    # 1. To'liq ibora
+    def add_result(row, score):
+        lid = row["lact_id"]
+        if lid not in results:
+            results[lid] = {
+                "lact_id": lid, "title": row["title"] or "",
+                "date": row["acceptance_date"] or "", "number": row["lact_number"] or "",
+                "text": clean_html(row["text"] or "")[:MAX_TEXT_LEN],
+                "url": f"https://lex.uz/uz/docs/{lid}", "score": score
+            }
+        else:
+            results[lid]["score"] += score
+
+    # 1. To'liq ibora sarlavhada (eng yuqori ball)
     try:
+        full_q = ' '.join(keywords[:3])
         rows = conn.execute("""
             SELECT a.lact_id, a.title, a.acceptance_date, a.lact_number, c.text
             FROM acts a LEFT JOIN act_contents c ON a.lact_id=c.lact_id
             WHERE a.lang_id=? AND a.status='Y' AND LOWER(a.title) LIKE ?
             ORDER BY a.id DESC LIMIT ?
-        """, (LANG_ID, f"%{query.lower()}%", limit*2)).fetchall()
-        for row in rows:
-            lid = row["lact_id"]
-            results[lid] = {
-                "lact_id": lid, "title": row["title"] or "",
-                "date": row["acceptance_date"] or "", "number": row["lact_number"] or "",
-                "text": clean_html(row["text"] or "")[:MAX_TEXT_LEN],
-                "url": f"https://lex.uz/uz/docs/{lid}", "score": 100
-            }
+        """, (LANG_ID, f"%{full_q}%", limit*2)).fetchall()
+        for row in rows: add_result(row, 200)
     except Exception as e:
         logger.error(f"1-bosqich: {e}")
 
-    # 2. Alohida so'zlar
-    for word in words:
+    # 2. Har bir kalit so'z sarlavhada
+    for word in keywords:
         try:
             rows = conn.execute("""
                 SELECT a.lact_id, a.title, a.acceptance_date, a.lact_number, c.text
@@ -109,22 +142,13 @@ def search_laws(query, limit=MAX_RESULTS):
                 WHERE a.lang_id=? AND a.status='Y' AND LOWER(a.title) LIKE ?
                 ORDER BY a.id DESC LIMIT ?
             """, (LANG_ID, f"%{word}%", limit*3)).fetchall()
-            for row in rows:
-                lid = row["lact_id"]
-                if lid not in results:
-                    results[lid] = {
-                        "lact_id": lid, "title": row["title"] or "",
-                        "date": row["acceptance_date"] or "", "number": row["lact_number"] or "",
-                        "text": clean_html(row["text"] or "")[:MAX_TEXT_LEN],
-                        "url": f"https://lex.uz/uz/docs/{lid}", "score": 0
-                    }
-                results[lid]["score"] += 10 * len(word)
+            for row in rows: add_result(row, 50 * len(word))
         except Exception as e:
             logger.error(f"2-bosqich: {e}")
 
-    # 3. Matnda
+    # 3. Matnda qidiruv (faqat yetarli natija bo'lmasa)
     if len(results) < limit:
-        for word in words[:3]:
+        for word in keywords[:2]:
             try:
                 rows = conn.execute("""
                     SELECT a.lact_id, a.title, a.acceptance_date, a.lact_number, c.text
@@ -132,21 +156,14 @@ def search_laws(query, limit=MAX_RESULTS):
                     WHERE a.lang_id=? AND a.status='Y' AND LOWER(c.text) LIKE ?
                     ORDER BY a.id DESC LIMIT ?
                 """, (LANG_ID, f"%{word}%", limit*2)).fetchall()
-                for row in rows:
-                    lid = row["lact_id"]
-                    if lid not in results:
-                        results[lid] = {
-                            "lact_id": lid, "title": row["title"] or "",
-                            "date": row["acceptance_date"] or "", "number": row["lact_number"] or "",
-                            "text": clean_html(row["text"] or "")[:MAX_TEXT_LEN],
-                            "url": f"https://lex.uz/uz/docs/{lid}", "score": 0
-                        }
-                    results[lid]["score"] += 3 * len(word)
+                for row in rows: add_result(row, 10 * len(word))
             except Exception as e:
                 logger.error(f"3-bosqich: {e}")
 
     conn.close()
-    return sorted(results.values(), key=lambda x: x["score"], reverse=True)[:limit]
+    sorted_results = sorted(results.values(), key=lambda x: x["score"], reverse=True)
+    logger.info(f"Top natijalar: {[r['title'][:40] for r in sorted_results[:3]]}")
+    return sorted_results[:limit]
 
 # ── AI ────────────────────────────────────────────────────────────────────────
 SYSTEM_UZ = """Sen O'zbekiston Respublikasi qonunchiligini chuqur biladigan yuridik yordamchisan.

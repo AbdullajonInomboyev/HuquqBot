@@ -95,13 +95,52 @@ def search_laws(query, limit=MAX_RESULTS):
                'mumkinmi','boladi','mumkin','bo\'ladi'}
     stop_ru = {'для','что','как','сколько','если','нужно','можно','нельзя',
                'я','ты','он','мы','вы','они','это','или','и','но','в','на',
-               'с','по','за','при','от','до','из','к','ли'}
+               'с','по','за','при','от','до','из','к','ли','мне','вам'}
+
+    # Rus tilidagi kalit so'zlarni o'zbek ekvivalentlariga tarjima
+    RU_TO_UZ = {
+        'труд': 'mehnat', 'трудов': 'mehnat', 'работа': 'ish', 'работник': 'xodim',
+        'зарплат': 'ish haqi', 'отпуск': 'ta\'til', 'увольнен': 'bo\'shatish',
+        'налог': 'soliq', 'ндс': 'qqs', 'доход': 'daromad', 'имуществ': 'mulk',
+        'недвижим': 'ko\'chmas mulk', 'земл': 'yer', 'квартир': 'uy-joy',
+        'ипотек': 'ipoteka', 'аренд': 'ijara', 'купл': 'sotib olish',
+        'брак': 'nikoh', 'развод': 'ajrashish', 'алимент': 'nafaqa',
+        'наследств': 'meros', 'семь': 'oila', 'ребен': 'bola',
+        'пенси': 'pensiya', 'инвалид': 'nogironlik', 'страхован': 'sug\'urta',
+        'транспорт': 'transport', 'автомобил': 'avtomobil', 'водител': 'haydovchi',
+        'лицензи': 'litsenziya', 'регистрац': 'ro\'yxatdan', 'предприним': 'tadbirkorlik',
+        'договор': 'shartnoma', 'суд': 'sud', 'штраф': 'jarima', 'кредит': 'kredit',
+        'банк': 'bank', 'граждан': 'fuqaro', 'права': 'huquq', 'закон': 'qonun',
+        'жилищ': 'uy-joy', 'медицин': 'tibbiy', 'образован': 'ta\'lim',
+        'торговл': 'savdo', 'таможн': 'bojxona', 'патент': 'patent',
+        'уголовн': 'jinoyat', 'административн': 'ma\'muriy', 'арест': 'hibsga olish',
+    }
+
     raw = re.split(r'\s+', query.strip().lower())
     is_ru = len(re.findall(r'[а-яё]', query)) > len(re.findall(r'[a-z]', query))
     stop = stop_ru if is_ru else stop_uz
     kw = [w for w in raw if len(w) > 3 and w not in stop] or [w for w in raw if len(w) > 2]
     if not kw: return []
-    logger.info(f"KW: {kw}")
+
+    # Rus so'zlarni o'zbek ekvivalentlariga almashtiramiz
+    if is_ru:
+        uz_kw = []
+        for w in kw:
+            translated = False
+            for ru_stem, uz_word in RU_TO_UZ.items():
+                if ru_stem in w:
+                    uz_kw.append(uz_word)
+                    translated = True
+                    break
+            if not translated:
+                uz_kw.append(w)  # Tarjima topilmasa o'zini qoldir
+        search_kw = uz_kw
+        logger.info(f"RU→UZ: {list(zip(kw, search_kw))}")
+    else:
+        search_kw = kw
+
+    logger.info(f"Search KW: {search_kw}")
+
     try:
         conn = get_db()
     except Exception as e:
@@ -117,15 +156,18 @@ def search_laws(query, limit=MAX_RESULTS):
         else:
             results[lid]["score"] += score
 
+    # 1. To'liq ibora
     try:
+        full = ' '.join(search_kw[:3])
         rows = conn.execute("""SELECT a.lact_id,a.title,a.acceptance_date,a.lact_number,c.text
             FROM acts a LEFT JOIN act_contents c ON a.lact_id=c.lact_id
             WHERE a.lang_id=? AND a.status='Y' AND LOWER(a.title) LIKE ?
-            ORDER BY a.id DESC LIMIT ?""", (LANG_ID, f"%{' '.join(kw[:3])}%", limit*2)).fetchall()
+            ORDER BY a.id DESC LIMIT ?""", (LANG_ID, f"%{full}%", limit*2)).fetchall()
         for r in rows: add(r, 200)
     except Exception as e: logger.error(f"1: {e}")
 
-    for w in kw:
+    # 2. Alohida kalit so'zlar
+    for w in search_kw:
         try:
             rows = conn.execute("""SELECT a.lact_id,a.title,a.acceptance_date,a.lact_number,c.text
                 FROM acts a LEFT JOIN act_contents c ON a.lact_id=c.lact_id
@@ -134,8 +176,9 @@ def search_laws(query, limit=MAX_RESULTS):
             for r in rows: add(r, 40*len(w))
         except: pass
 
+    # 3. Matnda
     if len(results) < limit:
-        for w in kw[:2]:
+        for w in search_kw[:2]:
             try:
                 rows = conn.execute("""SELECT a.lact_id,a.title,a.acceptance_date,a.lact_number,c.text
                     FROM acts a INNER JOIN act_contents c ON a.lact_id=c.lact_id
@@ -148,6 +191,72 @@ def search_laws(query, limit=MAX_RESULTS):
     top = sorted(results.values(), key=lambda x: x["score"], reverse=True)[:limit]
     logger.info(f"Top: {[r['title'][:30] for r in top[:3]]}")
     return top
+
+# ── Off-topic detection ───────────────────────────────────────────────────────
+LEGAL_KEYWORDS_UZ = {
+    'qonun','huquq','soliq','mehnat','nikoh','ajrash','meros','mulk','shartnoma',
+    'sud','jarima','ariza','litsenziya','patent','kredit','ipoteka','ijara',
+    'tadbirkorlik','yatt','pensiya','nafaqa','sug\'urta','transport','guvohnoma',
+    'fuqaro','davlat','korxona','ro\'yxat','ruxsat','to\'lov','yer','uy','kvartira',
+    'ish','xodim','ishchi','ta\'til','maosh','ish haqi','bo\'shatish','ishdan',
+    'jinoyat','jazo','hibsga','prokuratura','notarius','vasiylik','bola','oila',
+}
+LEGAL_KEYWORDS_RU = {
+    'закон','право','налог','труд','брак','развод','наследство','имущество',
+    'договор','суд','штраф','заявление','лицензия','патент','кредит','ипотека',
+    'аренда','предпринимат','ооо','пенсия','алименты','страхование','транспорт',
+    'гражданин','государство','предприятие','регистрация','разрешение','оплата',
+    'земля','жилье','квартира','работа','сотрудник','отпуск','зарплата','увольнение',
+    'уголовн','наказание','арест','прокурор','нотариус','опека','ребенок','семья',
+    'банк','юрист','адвокат','суд','иск','жалоба','апелляция',
+}
+OFFTOPIC_UZ = {
+    'salom','assalomu','xayr','rahmat','yaxshimisiz','qalaysiz','nechchi','nima gap',
+    'kun yaxshi','ishlar qanday','dam','ovqat','sport','film','musiqa','sevgi',
+    'do\'st','bola','o\'yin','sayohat','havoda','ob-havo','yangilik','ov',
+}
+OFFTOPIC_RU = {
+    'привет','здравствуй','пока','спасибо','как дела','как вы','хорошо ли',
+    'погода','еда','спорт','фильм','музыка','любовь','друг','игра','путешествие',
+    'новости','рецепт','готовить','отдых','праздник',
+}
+
+def is_legal_question(text, lang):
+    """Savolni yuridik ekanligini tekshir"""
+    tl = text.lower()
+    words = set(re.split(r'\s+', tl))
+
+    if lang == 'ru':
+        # Off-topic so'zlar bormi?
+        if any(w in tl for w in OFFTOPIC_RU):
+            # Legal so'zlar ham bormi?
+            if not any(w in tl for w in LEGAL_KEYWORDS_RU):
+                return False
+        return True  # Legal so'zlar yo'q bo'lsa ham, shubha bo'lsa javob ber
+    else:
+        if any(w in tl for w in OFFTOPIC_UZ):
+            if not any(w in tl for w in LEGAL_KEYWORDS_UZ):
+                return False
+        return True
+
+OFFTOPIC_RESPONSE_UZ = {
+    "category": "Yuridik bo'lmagan savol",
+    "icon": "⚖️",
+    "simpleAnswer": "Men faqat O'zbekiston qonunchiligi va yuridik masalalar bo'yicha yordam bera olaman.\n\nMisol savollar:\n• Mehnat ta'tili necha kun?\n• YaTT ochish uchun nima kerak?\n• Shartnomani qanday bekor qilaman?",
+    "steps": ["Yuridik savolingizni yozing", "AI qonunlar asosida tahlil qiladi", "Rasmiy manbalar bilan javob beradi"],
+    "legalBasis": "",
+    "warning": None,
+    "confidence": "high"
+}
+OFFTOPIC_RESPONSE_RU = {
+    "category": "Не юридический вопрос",
+    "icon": "⚖️",
+    "simpleAnswer": "Я могу помочь только с вопросами по законодательству Узбекистана.\n\nПримеры вопросов:\n• Сколько дней длится трудовой отпуск?\n• Что нужно для открытия ИП?\n• Как расторгнуть договор?",
+    "steps": ["Задайте юридический вопрос", "ИИ проанализирует законы", "Ответит со ссылками на источники"],
+    "legalBasis": "",
+    "warning": None,
+    "confidence": "high"
+}
 
 # ── Document type detection ───────────────────────────────────────────────────
 def detect_doc_type(text, lang):
@@ -369,6 +478,12 @@ def ask():
 
     if len(q) < 2: return jsonify({"error": "Juda qisqa"}), 400
     logger.info(f"Savol [{lang}]: {q[:80]}")
+
+    # Off-topic tekshiruv
+    if not is_legal_question(q, lang):
+        logger.info("Off-topic savol — yuridik emas")
+        resp = OFFTOPIC_RESPONSE_RU if lang == 'ru' else OFFTOPIC_RESPONSE_UZ
+        return jsonify({"found": False, "answer": resp, "sources": []})
 
     if not is_doc:
         record_question(q)

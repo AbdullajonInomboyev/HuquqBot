@@ -1044,28 +1044,31 @@ def ask_ai(question, laws, lang='uz', history=None, system_override=None):
     return parse_ai(comp.choices[0].message.content.strip())
 
 # ── Off-topic filter ──────────────────────────────────────────────────────────
-def is_legal_question(question, lang):
-    if not client:
-        return True
-    try:
-        if lang == 'ru':
-            prompt = f'Этот вопрос о праве, законах, налогах, работе, недвижимости, семье, суде Узбекистана? Вопрос: "{question[:200]}"\nОтветь ТОЛЬКО: YES или NO'
-        else:
-            prompt = f'Bu savol O\'zbekiston huquqi, qonunlari, soliqlari, mehnat, mulk, oila, sud masalalariga tegishlimi? Savol: "{question[:200]}"\nFAQAT: YES yoki NO'
+# def is_legal_question(question, lang):
+#     if not client:
+#         return True
+#     try:
+#         if lang == 'ru':
+#             prompt = f'Этот вопрос о праве, законах, налогах, работе, недвижимости, семье, суде Узбекистана? Вопрос: "{question[:200]}"\nОтветь ТОЛЬКО: YES или NO'
+#         else:
+#             prompt = f'Bu savol O\'zbekiston huquqi, qonunlari, soliqlari, mehnat, mulk, oila, sud masalalariga tegishlimi? Savol: "{question[:200]}"\nFAQAT: YES yoki NO'
 
-        comp = client.chat.completions.create(
-            model="deepseek-chat",  # TUZATILDI
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=5,
-            temperature=0,
-            timeout=10
-        )
-        ans = comp.choices[0].message.content.strip().upper()
-        logger.info(f"Legal check: {ans}")
-        return "YES" in ans
-    except Exception as e:
-        logger.warning(f"Legal check xato: {e}")
-        return True
+#         comp = client.chat.completions.create(
+#             model="deepseek-chat",  # TUZATILDI
+#             messages=[{"role": "user", "content": prompt}],
+#             max_tokens=5,
+#             temperature=0,
+#             timeout=10
+#         )
+#         ans = comp.choices[0].message.content.strip().upper()
+#         logger.info(f"Legal check: {ans}")
+#         return "YES" in ans
+#     except Exception as e:
+#         logger.warning(f"Legal check xato: {e}")
+#         return True
+def is_legal_question(question, lang):
+    return True
+
 
 # ── File extraction ───────────────────────────────────────────────────────────
 def extract_text(filepath, filename):

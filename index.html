@@ -30,6 +30,7 @@
     .flt{animation:flt 3s ease-in-out infinite}
     .cw,.hw{display:flex;flex-direction:column;height:100vh;height:100dvh}
     .hw{overflow:hidden}
+    .safe-input{padding-bottom:max(10px,env(safe-area-inset-bottom))!important}
     textarea,input{color:#fff!important}
     ::placeholder{color:#475569!important}
     .hscroll::-webkit-scrollbar{display:none}
@@ -233,7 +234,7 @@ function Home({lang,setLang,onChat,onOpenChat,chats,onDeleteChat,lawCount,topQ})
       </div>
 
       {/* Scroll area */}
-      <div style={{flex:1,overflowY:'auto',padding:'0 14px 100px',scrollbarWidth:'none'}}>
+      <div style={{flex:1,overflowY:'auto',padding:'0 14px',paddingBottom:'max(110px,calc(90px + env(safe-area-inset-bottom)))',scrollbarWidth:'none'}}>
         {/* Search */}
         <div style={{position:'relative',marginBottom:14}}>
           <span style={{position:'absolute',left:13,top:'50%',transform:'translateY(-50%)',width:17,height:17,color:'#475569',pointerEvents:'none'}}>{I.search}</span>
@@ -351,10 +352,11 @@ function Home({lang,setLang,onChat,onOpenChat,chats,onDeleteChat,lawCount,topQ})
         )}
       </div>
 
-      {/* Floating chat button - full styled */}
+      {/* Floating chat button - full rectangle */}
       <button onClick={()=>onChat('')}
-        style={{position:'fixed',bottom:20,right:16,width:62,height:62,borderRadius:18,background:'linear-gradient(135deg,#d4a83a,#b8902a)',boxShadow:'0 8px 32px rgba(212,168,58,.45)',border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',zIndex:40,gap:0}}>
-        <span style={{width:28,height:28,color:'#fff'}}>{I.chat}</span>
+        style={{position:'fixed',bottom:'max(20px,calc(16px + env(safe-area-inset-bottom)))',right:16,height:52,padding:'0 22px',borderRadius:16,background:'linear-gradient(135deg,#d4a83a,#b8902a)',boxShadow:'0 8px 32px rgba(212,168,58,.45)',border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',zIndex:40,gap:8}}>
+        <span style={{width:22,height:22,color:'#fff'}}>{I.chat}</span>
+        <span style={{fontSize:14,fontWeight:600,color:'#fff',fontFamily:'DM Sans,sans-serif',whiteSpace:'nowrap'}}>{T[lang].newChat}</span>
       </button>
 
       {/* Lang modal */}
@@ -546,7 +548,7 @@ function Chat({lang,chatId,initialQ,onBack,onSave}){
       </div>
 
       {/* Input */}
-      <div style={{flexShrink:0,padding:'8px 12px 10px',borderTop:'1px solid rgba(212,168,58,.1)'}}>
+      <div className="safe-input" style={{flexShrink:0,padding:'8px 12px',borderTop:'1px solid rgba(212,168,58,.1)'}}>
         <div style={{display:'flex',alignItems:'flex-end',gap:8,padding:'8px 10px',borderRadius:20,background:'#101829',border:'1px solid rgba(212,168,58,.2)'}}>
           {/* Attach */}
           <button onClick={()=>fileRef.current?.click()} disabled={busy}

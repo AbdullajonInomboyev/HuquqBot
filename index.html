@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <meta name="theme-color" content="#0a0f1e"/>
+  <title>HuquqBot — Yuridik Yordamchi</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 950:'#050810', 900:'#0a0f1e', 800:'#101829', 700:'#162035', 600:'#1e2d4a' },
+            gold: { 400:'#f0c060', 500:'#d4a83a', 600:'#b8902a' },
+            jade: { 400:'#4ade80', 500:'#22c55e', 600:'#16a34a' },
+            slate2: { 400:'#94a3b8', 500:'#64748b', 600:'#475569' }
+          },
+          fontFamily: {
+            display: ['Crimson Pro', 'Georgia', 'serif'],
+            body: ['DM Sans', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    html,body,#root{height:100%;overflow:hidden;background:#050810}
+    ::-webkit-scrollbar{width:3px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:#1e2d4a;border-radius:99px}
+    .fade-in{animation:fadeIn .4s ease both}
+    .slide-up{animation:slideUp .35s ease both}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    @keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    .dot-pulse span{animation:dotPulse 1.4s infinite ease-in-out}
+    .dot-pulse span:nth-child(2){animation-delay:.2s}
+    .dot-pulse span:nth-child(3){animation-delay:.4s}
+    @keyframes dotPulse{0%,80%,100%{opacity:.25;transform:scale(.7)}40%{opacity:1;transform:scale(1)}}
+    textarea:focus{outline:none}
+    input:focus{outline:none}
+    .gold-border{border:1px solid rgba(212,168,58,.25)}
+    .glass{background:rgba(16,24,41,.7);backdrop-filter:blur(12px)}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+// ── Translations ─────────────────────────────────────────────────────────────
+const T = {
+  uz: {
+    appName: 'HuquqBot',
+    tagline: 'O\'zbekiston qonunchiligi bo\'yicha AI yordamchi',
+    selectLang: 'Tilni tanlang',
+    continue: 'Davom etish',
+    search: 'Savol yoki kalit so\'z...',
+    quickQ: 'Tezkor savollar',
+    sources: 'Rasmiy manbalar',
+    history: 'So\'nggi chatlar',
+    newChat: 'Yangi chat',
+    back: 'Orqaga',
+    send: 'Yuborish',
+    typing: 'Tahlil qilinmoqda...',
+    uploadDoc: 'Hujjat yuklash',
+    uploadHint: 'PDF yoki Word fayl yuklang',
+    disclaimer: 'Bu ma\'lumotlar tanishish uchun. Muhim masalalar uchun yuristga murojaat qiling.',
+    noResult: 'Natija topilmadi',
+    lawCount: 'ta qonun hujjati',
+    source: 'LEX.UZ BAZASIDA',
+    chatTitle: 'Yuridik tahlil',
+    errorMsg: 'Xatolik yuz berdi. Qayta urinib ko\'ring.',
+    placeholder: 'Savolingizni yozing...',
+    analyzing: 'Savol tahlil qilinmoqda...',
+    searching: 'Qonunlar qidirilmoqda...',
+    aiThinking: 'AI javob tayyorlamoqda...',
+    highConf: 'Yuqori aniqlik',
+    medConf: 'O\'rtacha aniqlik',
+    lowConf: 'Tekshiring',
+    legalBasis: 'Huquqiy asos',
+    officialSrc: 'Rasmiy manbalar',
+    warning: 'Diqqat',
+    uploadAnalyze: 'Hujjatni tahlil qilish',
+    dragDrop: 'Faylni bu yerga tashlang yoki bosing',
+    supported: 'PDF, DOCX, DOC qo\'llab-quvvatlanadi',
+    quickTitles: ['Mehnat ta\'tili','YaTT ochish','Mulk soliqi','Ish huquqi','Oila huquqi','Transport soliqi'],
+    quickQ2: ['Mehnat ta\'tili necha kun bo\'ladi?','YaTT ochish uchun nima kerak?','Uy sotib olsam qanday soliq to\'layman?','Ishdan bo\'shatishda qanday huquqlarim bor?','Nikohdan ajrashganda mulk qanday bo\'linadi?','Avto olsam qanday soliq to\'lanadi?'],
+    quickIcons: ['📋','🏢','🏠','⚖️','👨‍👩‍👧','🚗'],
+    deleteChat: 'Chatni o\'chirish',
+    noChats: 'Hali chat yo\'q',
+  },
+  ru: {
+    appName: 'HuquqBot',
+    tagline: 'AI-помощник по законодательству Узбекистана',
+    selectLang: 'Выберите язык',
+    continue: 'Продолжить',
+    search: 'Вопрос или ключевое слово...',
+    quickQ: 'Быстрые вопросы',
+    sources: 'Официальные источники',
+    history: 'Последние чаты',
+    newChat: 'Новый чат',
+    back: 'Назад',
+    send: 'Отправить',
+    typing: 'Анализируется...',
+    uploadDoc: 'Загрузить документ',
+    uploadHint: 'Загрузите PDF или Word файл',
+    disclaimer: 'Информация носит ознакомительный характер. По важным вопросам обращайтесь к юристу.',
+    noResult: 'Ничего не найдено',
+    lawCount: 'правовых документов',
+    source: 'В БАЗЕ LEX.UZ',
+    chatTitle: 'Юридический анализ',
+    errorMsg: 'Произошла ошибка. Попробуйте ещё раз.',
+    placeholder: 'Напишите ваш вопрос...',
+    analyzing: 'Вопрос анализируется...',
+    searching: 'Поиск законов...',
+    aiThinking: 'ИИ готовит ответ...',
+    highConf: 'Высокая точность',
+    medConf: 'Средняя точность',
+    lowConf: 'Проверьте',
+    legalBasis: 'Правовое основание',
+    officialSrc: 'Официальные источники',
+    warning: 'Внимание',
+    uploadAnalyze: 'Проанализировать документ',
+    dragDrop: 'Перетащите файл или нажмите',
+    supported: 'Поддерживаются PDF, DOCX, DOC',
+    quickTitles: ['Трудовой отпуск','Открыть ИП','Налог на имущество','Трудовые права','Семейное право','Транспортный налог'],
+    quickQ2: ['Сколько дней длится трудовой отпуск?','Что нужно для открытия ИП?','Какой налог при покупке недвижимости?','Какие права при увольнении?','Как делится имущество при разводе?','Какой налог при покупке авто?'],
+    quickIcons: ['📋','🏢','🏠','⚖️','👨‍👩‍👧','🚗'],
+    deleteChat: 'Удалить чат',
+    noChats: 'Чатов пока нет',
+  }
+};
+
+// ── Storage helpers ──────────────────────────────────────────────────────────
+const storage = {
+  get: (k, def) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : def; } catch { return def; } },
+  set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+
+const API = '';
+
+// ── Icons ────────────────────────────────────────────────────────────────────
+const Icon = {
+  shield: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+  search: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+  send: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>,
+  plus: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+  back: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>,
+  link: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>,
+  upload: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>,
+  trash: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>,
+  chat: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,
+  info: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
+  doc: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>,
+  globe: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>,
+};
+
+// ── Language Screen ──────────────────────────────────────────────────────────
+function LangScreen({ onSelect }) {
+  return (
+    <div className="h-screen flex flex-col items-center justify-center bg-navy-950 fade-in px-6">
+      <div className="w-16 h-16 mb-6 text-gold-400">
+        <svg viewBox="0 0 52 52" fill="none">
+          <rect width="52" height="52" rx="16" fill="#162035"/>
+          <path d="M26 10L13 17v11c0 9.5 6.5 16.5 13 18 6.5-1.5 13-8.5 13-18V17L26 10z" stroke="#d4a83a" strokeWidth="2" fill="none" strokeLinejoin="round"/>
+          <path d="M20 26l4 4 8-8" stroke="#d4a83a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </div>
+      <h1 className="font-display text-3xl text-white mb-2">HuquqBot</h1>
+      <p className="text-slate2-400 text-sm mb-10">Yuridik AI yordamchi / Юридический AI помощник</p>
+
+      <div className="w-full max-w-xs space-y-3">
+        <button onClick={() => onSelect('uz')}
+          className="w-full flex items-center gap-4 p-4 rounded-2xl bg-navy-800 gold-border hover:bg-navy-700 transition-all active:scale-95">
+          <span className="text-2xl">🇺🇿</span>
+          <div className="text-left">
+            <div className="font-body font-medium text-white">O'zbek tili</div>
+            <div className="text-xs text-slate2-400">Davom etish uchun tanlang</div>
+          </div>
+        </button>
+        <button onClick={() => onSelect('ru')}
+          className="w-full flex items-center gap-4 p-4 rounded-2xl bg-navy-800 gold-border hover:bg-navy-700 transition-all active:scale-95">
+          <span className="text-2xl">🇷🇺</span>
+          <div className="text-left">
+            <div className="font-body font-medium text-white">Русский язык</div>
+            <div className="text-xs text-slate2-400">Выберите для продолжения</div>
+          </div>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Home Screen ──────────────────────────────────────────────────────────────
+function HomeScreen({ lang, onChat, onOpenChat, chats, onDeleteChat, lawCount }) {
+  const t = T[lang];
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const [showUpload, setShowUpload] = useState(false);
+  const searchTimer = useRef(null);
+  const tg = window.Telegram?.WebApp;
+
+  useEffect(() => {
+    clearTimeout(searchTimer.current);
+    if (query.trim().length < 2) { setResults([]); return; }
+    setSearching(true);
+    searchTimer.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`${API}/api/search?q=${encodeURIComponent(query)}&lang=${lang}`);
+        if (res.ok) { const d = await res.json(); setResults(d.results || []); }
+      } catch {}
+      setSearching(false);
+    }, 400);
+  }, [query]);
+
+  const openUrl = (url) => {
+    if (tg?.openLink) tg.openLink(url); else window.open(url, '_blank');
+  };
+
+  return (
+    <div className="h-screen flex flex-col bg-navy-950 overflow-hidden">
+      {/* Header */}
+      <div className="flex-shrink-0 px-5 pt-6 pb-4"
+        style={{background:'linear-gradient(180deg,#050810 0%,rgba(5,8,16,0) 100%)'}}>
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 text-gold-400">
+              <svg viewBox="0 0 52 52" fill="none">
+                <rect width="52" height="52" rx="14" fill="#162035"/>
+                <path d="M26 10L13 17v11c0 9.5 6.5 16.5 13 18 6.5-1.5 13-8.5 13-18V17L26 10z" stroke="#d4a83a" strokeWidth="2" fill="none" strokeLinejoin="round"/>
+                <path d="M20 26l4 4 8-8" stroke="#d4a83a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <span className="font-display text-xl text-white">{t.appName}</span>
+          </div>
+          <button onClick={() => setShowUpload(true)}
+            className="w-8 h-8 flex items-center justify-center rounded-xl bg-navy-700 text-gold-400 text-sm">
+            <span className="w-4 h-4">{Icon.upload}</span>
+          </button>
+        </div>
+        {lawCount > 0 && (
+          <div className="flex items-center gap-2 mt-1">
+            <div className="w-1.5 h-1.5 rounded-full bg-jade-500 animate-pulse"/>
+            <span className="text-xs text-slate2-500 font-body">
+              {lawCount.toLocaleString()} {t.lawCount} • {t.source}
+            </span>
+          </div>
+        )}
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-4 pb-4" style={{scrollbarWidth:'none'}}>
+        {/* Search */}
+        <div className="relative mb-5">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate2-500">{Icon.search}</div>
+          <input value={query} onChange={e => setQuery(e.target.value)}
+            placeholder={t.search}
+            className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-navy-800 gold-border text-white text-sm font-body placeholder-slate2-600 transition-all focus:border-gold-500"
+          />
+          {searching && (
+            <div className="absolute right-4 top-1/2 -translate-y-1/2">
+              <div className="w-4 h-4 border-2 border-gold-400 border-t-transparent rounded-full animate-spin"/>
+            </div>
+          )}
+        </div>
+
+        {/* Search results */}
+        {query.trim().length >= 2 && (
+          <div className="mb-5 slide-up">
+            {results.length === 0 && !searching ? (
+              <div className="text-center py-8 text-slate2-500 text-sm">{t.noResult}</div>
+            ) : (
+              <div className="space-y-2">
+                {results.map((r, i) => (
+                  <button key={i} onClick={() => onChat(r.title)}
+                    className="w-full text-left p-3.5 rounded-xl bg-navy-800 gold-border hover:bg-navy-700 transition-all active:scale-98 slide-up"
+                    style={{animationDelay:`${i*0.05}s`}}>
+                    <div className="text-sm text-white font-body font-medium line-clamp-2 mb-1">{r.title}</div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gold-500">{r.number || 'lex.uz'}</span>
+                      {r.date && <span className="text-xs text-slate2-600">• {r.date.slice(0,4)}</span>}
+                      <span className="ml-auto w-3 h-3 text-slate2-600">{Icon.link}</span>
+                    </div>
+                  </button>
+                ))}
+                {results.length > 0 && (
+                  <button onClick={() => onChat(query)}
+                    className="w-full py-3 rounded-xl bg-gold-500/10 border border-gold-500/30 text-gold-400 text-sm font-body font-medium hover:bg-gold-500/20 transition-all">
+                    AI dan so'rash: "{query}"
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Quick questions */}
+        {!query && (
+          <>
+            <div className="text-xs font-body font-semibold text-slate2-500 uppercase tracking-widest mb-3">{t.quickQ}</div>
+            <div className="grid grid-cols-2 gap-2.5 mb-6">
+              {t.quickTitles.map((title, i) => (
+                <button key={i} onClick={() => onChat(t.quickQ2[i])}
+                  className="flex flex-col items-start gap-2 p-4 rounded-2xl bg-navy-800 gold-border hover:bg-navy-700 transition-all active:scale-95 slide-up"
+                  style={{animationDelay:`${i*0.06}s`}}>
+                  <span className="text-xl">{t.quickIcons[i]}</span>
+                  <span className="text-xs text-slate2-300 font-body leading-tight">{title}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Sources */}
+            <div className="text-xs font-body font-semibold text-slate2-500 uppercase tracking-widest mb-3">{t.sources}</div>
+            <div className="flex flex-wrap gap-2 mb-6">
+              {['lex.uz','my.gov.uz','soliq.uz','mehnat.uz'].map(s => (
+                <button key={s} onClick={() => openUrl(`https://${s}`)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-navy-800 gold-border text-xs text-slate2-300 hover:text-gold-400 transition-colors">
+                  <span className="w-3 h-3">{Icon.globe}</span>{s}
+                </button>
+              ))}
+            </div>
+
+            {/* Chat history */}
+            {chats.length > 0 && (
+              <>
+                <div className="text-xs font-body font-semibold text-slate2-500 uppercase tracking-widest mb-3">{t.history}</div>
+                <div className="space-y-2 mb-6">
+                  {chats.slice(0,5).map(c => (
+                    <div key={c.id} className="flex items-center gap-3 p-3 rounded-xl bg-navy-800 gold-border">
+                      <div className="w-8 h-8 rounded-lg bg-navy-700 flex items-center justify-center text-gold-400 flex-shrink-0">
+                        <span className="w-4 h-4">{Icon.chat}</span>
+                      </div>
+                      <button onClick={() => onOpenChat(c.id)} className="flex-1 text-left min-w-0">
+                        <div className="text-xs text-white font-body truncate">{c.title}</div>
+                        <div className="text-xs text-slate2-600">{new Date(c.updatedAt).toLocaleDateString()}</div>
+                      </button>
+                      <button onClick={() => onDeleteChat(c.id)} className="w-6 h-6 text-slate2-600 hover:text-red-400 transition-colors flex-shrink-0">
+                        <span className="w-4 h-4 block">{Icon.trash}</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* Disclaimer */}
+            <div className="flex gap-3 p-4 rounded-2xl bg-gold-500/5 border border-gold-500/15">
+              <div className="w-5 h-5 text-gold-500 flex-shrink-0 mt-0.5">{Icon.info}</div>
+              <p className="text-xs text-gold-600 font-body leading-relaxed">{t.disclaimer}</p>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Upload modal */}
+      {showUpload && <UploadModal lang={lang} onClose={() => setShowUpload(false)} onResult={q => { setShowUpload(false); onChat(q); }}/>}
+    </div>
+  );
+}
+
+// ── Upload Modal ──────────────────────────────────────────────────────────────
+function UploadModal({ lang, onClose, onResult }) {
+  const t = T[lang];
+  const [uploading, setUploading] = useState(false);
+  const [status, setStatus] = useState('');
+  const fileRef = useRef();
+
+  const handleFile = async (file) => {
+    if (!file) return;
+    setUploading(true);
+    setStatus(lang === 'uz' ? 'Fayl yuklanmoqda...' : 'Загрузка файла...');
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('lang', lang);
+    try {
+      const res = await fetch(`${API}/api/upload`, { method: 'POST', body: fd });
+      const d = await res.json();
+      if (d.summary) { onResult(d.summary); }
+      else { setStatus(t.errorMsg); setUploading(false); }
+    } catch {
+      setStatus(t.errorMsg); setUploading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end" style={{background:'rgba(5,8,16,.85)',backdropFilter:'blur(8px)'}}>
+      <div className="w-full bg-navy-900 rounded-t-3xl p-6 slide-up gold-border">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="font-display text-lg text-white">{t.uploadDoc}</h3>
+          <button onClick={onClose} className="w-8 h-8 rounded-full bg-navy-800 text-slate2-400 flex items-center justify-center text-lg">×</button>
+        </div>
+        {uploading ? (
+          <div className="text-center py-8">
+            <div className="w-10 h-10 border-2 border-gold-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"/>
+            <p className="text-slate2-400 text-sm">{status}</p>
+          </div>
+        ) : (
+          <div onClick={() => fileRef.current?.click()}
+            className="border-2 border-dashed border-navy-600 rounded-2xl p-8 text-center cursor-pointer hover:border-gold-500/50 transition-colors"
+            onDragOver={e => e.preventDefault()}
+            onDrop={e => { e.preventDefault(); handleFile(e.dataTransfer.files[0]); }}>
+            <div className="w-10 h-10 text-gold-400 mx-auto mb-3">{Icon.upload}</div>
+            <p className="text-white text-sm font-body mb-1">{t.dragDrop}</p>
+            <p className="text-slate2-500 text-xs">{t.supported}</p>
+            <input ref={fileRef} type="file" accept=".pdf,.docx,.doc" className="hidden"
+              onChange={e => handleFile(e.target.files[0])}/>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Chat Screen ──────────────────────────────────────────────────────────────
+function ChatScreen({ lang, chatId, initialQ, onBack, onSave }) {
+  const t = T[lang];
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [steps, setSteps] = useState([]);
+  const bottomRef = useRef();
+  const inputRef = useRef();
+  const tg = window.Telegram?.WebApp;
+
+  useEffect(() => {
+    // Load existing chat
+    const saved = storage.get(`chat_${chatId}`, null);
+    if (saved?.messages) { setMessages(saved.messages); }
+    else if (initialQ) { sendMessage(initialQ); }
+  }, [chatId]);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, steps]);
+
+  const saveChat = (msgs, firstQ) => {
+    const title = firstQ?.slice(0, 50) || msgs[0]?.content?.slice(0, 50) || 'Chat';
+    const data = { id: chatId, title, messages: msgs, updatedAt: Date.now() };
+    storage.set(`chat_${chatId}`, data);
+    onSave(data);
+  };
+
+  const sendMessage = async (text) => {
+    if (!text?.trim() || busy) return;
+    const q = text.trim();
+    setInput('');
+    setBusy(true);
+
+    const newMsgs = [...messages, { role: 'user', content: q, ts: Date.now() }];
+    setMessages(newMsgs);
+
+    const stepList = [t.analyzing, t.searching, t.aiThinking];
+    setSteps(stepList.map((s, i) => ({ text: s, state: i === 0 ? 'active' : 'pending' })));
+
+    await sleep(500);
+    setSteps(s => s.map((x, i) => i === 0 ? { ...x, state: 'done' } : i === 1 ? { ...x, state: 'active' } : x));
+
+    try {
+      const res = await fetch(`${API}/api/ask`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: q, lang, history: messages.slice(-6) })
+      });
+      const d = await res.json();
+
+      setSteps(s => s.map((x, i) => i <= 1 ? { ...x, state: 'done' } : { ...x, state: 'active' }));
+      await sleep(400);
+      setSteps([]);
+
+      const answer = { role: 'assistant', content: d.answer, sources: d.sources, ts: Date.now() };
+      const allMsgs = [...newMsgs, answer];
+      setMessages(allMsgs);
+      saveChat(allMsgs, q);
+      if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+    } catch (e) {
+      setSteps([]);
+      setMessages(m => [...m, { role: 'assistant', content: null, error: t.errorMsg, ts: Date.now() }]);
+    }
+    setBusy(false);
+  };
+
+  const openUrl = url => { if (tg?.openLink) tg.openLink(url); else window.open(url, '_blank'); };
+
+  return (
+    <div className="h-screen flex flex-col bg-navy-950">
+      {/* Header */}
+      <div className="flex-shrink-0 flex items-center gap-3 px-4 py-3 border-b border-navy-700">
+        <button onClick={onBack}
+          className="w-9 h-9 flex items-center justify-center rounded-xl bg-navy-800 text-slate2-400 hover:text-white transition-colors">
+          <span className="w-5 h-5">{Icon.back}</span>
+        </button>
+        <div className="flex-1">
+          <div className="text-sm font-body font-medium text-white">{t.chatTitle}</div>
+          <div className="text-xs text-slate2-500">LEX.UZ · MY.GOV.UZ</div>
+        </div>
+        <button onClick={() => { storage.remove?.(`chat_${chatId}`); onBack(); }}
+          className="w-9 h-9 flex items-center justify-center rounded-xl bg-navy-800 text-slate2-600 hover:text-gold-400 transition-colors">
+          <span className="w-4 h-4">{Icon.plus}</span>
+        </button>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4" style={{scrollbarWidth:'none'}}>
+        {messages.map((m, i) => (
+          <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} slide-up`}>
+            {m.role === 'user' ? (
+              <div className="max-w-4/5 px-4 py-3 rounded-2xl rounded-br-sm text-sm font-body text-white leading-relaxed"
+                style={{background:'linear-gradient(135deg,#1e3a6e,#1a3060)',border:'1px solid rgba(100,130,200,.25)',maxWidth:'80%'}}>
+                {m.content}
+                <div className="text-right text-xs text-blue-400/50 mt-1">
+                  {new Date(m.ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}
+                </div>
+              </div>
+            ) : m.error ? (
+              <div className="max-w-4/5 px-4 py-3 rounded-2xl rounded-bl-sm bg-navy-800 border border-red-500/20 text-sm text-red-400 font-body" style={{maxWidth:'80%'}}>
+                ⚠️ {m.error}
+              </div>
+            ) : (
+              <AnswerBubble answer={m.content} sources={m.sources} lang={lang} openUrl={openUrl} ts={m.ts}/>
+            )}
+          </div>
+        ))}
+
+        {/* Steps */}
+        {steps.length > 0 && (
+          <div className="flex justify-start slide-up">
+            <div className="px-4 py-3 rounded-2xl rounded-bl-sm bg-navy-800 gold-border max-w-xs">
+              {steps.map((s, i) => (
+                <div key={i} className="flex items-center gap-2.5 py-1">
+                  <div className={`w-2 h-2 rounded-full flex-shrink-0 transition-all ${s.state==='done'?'bg-jade-500':s.state==='active'?'bg-gold-400 animate-pulse':'bg-navy-600'}`}/>
+                  <span className={`text-xs font-body ${s.state==='done'?'text-jade-400':s.state==='active'?'text-white':'text-slate2-600'}`}>{s.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        <div ref={bottomRef}/>
+      </div>
+
+      {/* Input */}
+      <div className="flex-shrink-0 px-4 py-3 border-t border-navy-700">
+        <div className="flex items-end gap-3 p-3 rounded-2xl bg-navy-800 gold-border focus-within:border-gold-500/50 transition-colors">
+          <textarea ref={inputRef} value={input} onChange={e => setInput(e.target.value)}
+            placeholder={t.placeholder} rows={1}
+            onKeyDown={e => { if (e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage(input);} }}
+            onInput={e => { e.target.style.height='auto'; e.target.style.height=Math.min(e.target.scrollHeight,100)+'px'; }}
+            className="flex-1 bg-transparent text-sm text-white font-body placeholder-slate2-600 resize-none max-h-24 leading-relaxed"/>
+          <button onClick={() => sendMessage(input)} disabled={busy||!input.trim()}
+            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all active:scale-90 disabled:opacity-40"
+            style={{background:busy||!input.trim()?'#162035':'linear-gradient(135deg,#d4a83a,#b8902a)'}}>
+            <span className="w-4 h-4 text-white">{Icon.send}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Answer Bubble ─────────────────────────────────────────────────────────────
+function AnswerBubble({ answer, sources, lang, openUrl, ts }) {
+  const t = T[lang];
+  if (!answer) return null;
+  const conf = answer.confidence;
+  const confColor = conf==='high'?'text-jade-400 bg-jade-500/10 border-jade-500/20':conf==='medium'?'text-gold-400 bg-gold-500/10 border-gold-500/20':'text-red-400 bg-red-500/10 border-red-500/20';
+  const confText = conf==='high'?t.highConf:conf==='medium'?t.medConf:t.lowConf;
+
+  return (
+    <div className="max-w-full w-full" style={{maxWidth:'88%'}}>
+      <div className="px-4 py-4 rounded-2xl rounded-bl-sm bg-navy-800 border border-navy-600">
+        {/* Category + confidence */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <span className="text-base">{answer.icon||'⚖️'}</span>
+            <span className="text-xs font-body font-semibold text-gold-500 uppercase tracking-wider">{answer.category}</span>
+          </div>
+          <span className={`text-xs px-2 py-0.5 rounded-full border font-body ${confColor}`}>{confText}</span>
+        </div>
+
+        {/* Legal basis */}
+        {answer.legalBasis && (
+          <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-lg bg-navy-900 border border-navy-600">
+            <span className="text-xs text-slate2-500 font-body">📌</span>
+            <span className="text-xs text-slate2-400 font-body">{answer.legalBasis}</span>
+          </div>
+        )}
+
+        {/* Answer */}
+        <p className="text-sm text-slate2-200 font-body leading-relaxed mb-3" dangerouslySetInnerHTML={{__html:(answer.simpleAnswer||'').replace(/\n/g,'<br/>')}}/>
+
+        {/* Steps */}
+        {(answer.steps||[]).length > 0 && (
+          <div className="space-y-2 mb-3">
+            {answer.steps.map((s, i) => (
+              <div key={i} className="flex items-start gap-3 text-sm">
+                <span className="w-5 h-5 rounded-full bg-navy-700 text-gold-400 text-xs flex items-center justify-center flex-shrink-0 mt-0.5 font-body font-semibold">{i+1}</span>
+                <span className="text-slate2-300 font-body leading-relaxed">{s}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Sources */}
+        {(sources||[]).length > 0 && (
+          <div className="border-t border-navy-700 pt-3 mt-3">
+            <div className="text-xs text-slate2-600 font-body uppercase tracking-wider mb-2">{t.officialSrc}</div>
+            <div className="space-y-1.5">
+              {sources.map((s, i) => (
+                <button key={i} onClick={() => openUrl(s.url)}
+                  className="flex items-center gap-2 text-xs text-gold-500 hover:text-gold-400 transition-colors">
+                  <span className="w-3 h-3 flex-shrink-0">{Icon.link}</span>
+                  <span className="font-body truncate">{s.title}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Warning */}
+        {answer.warning && answer.warning !== 'null' && (
+          <div className="flex gap-2 mt-3 pt-3 border-t border-navy-700">
+            <span className="w-3 h-3 text-gold-500 flex-shrink-0 mt-0.5">{Icon.info}</span>
+            <span className="text-xs text-gold-600 font-body leading-relaxed">{answer.warning}</span>
+          </div>
+        )}
+
+        <div className="text-right text-xs text-slate2-700 mt-2 font-body">
+          {new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})} · AI Generatsiyasi
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── App ──────────────────────────────────────────────────────────────────────
+function App() {
+  const [lang, setLang] = useState(() => storage.get('hb_lang', null));
+  const [screen, setScreen] = useState('home');
+  const [currentChatId, setCurrentChatId] = useState(null);
+  const [initialQ, setInitialQ] = useState(null);
+  const [chats, setChats] = useState(() => storage.get('hb_chats', []));
+  const [lawCount, setLawCount] = useState(0);
+  const tg = window.Telegram?.WebApp;
+
+  useEffect(() => {
+    if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor?.('#050810'); tg.setBackgroundColor?.('#050810'); }
+    fetch(`${API}/api/stats`).then(r=>r.json()).then(d=>{ if(d.total_laws) setLawCount(d.total_laws); }).catch(()=>{});
+  }, []);
+
+  const selectLang = (l) => { storage.set('hb_lang', l); setLang(l); };
+
+  const startChat = (q) => {
+    const id = `chat_${Date.now()}`;
+    setCurrentChatId(id);
+    setInitialQ(q);
+    setScreen('chat');
+  };
+
+  const openChat = (id) => {
+    setCurrentChatId(id);
+    setInitialQ(null);
+    setScreen('chat');
+  };
+
+  const saveChat = (data) => {
+    setChats(prev => {
+      const filtered = prev.filter(c => c.id !== data.id);
+      const updated = [data, ...filtered];
+      storage.set('hb_chats', updated);
+      return updated;
+    });
+  };
+
+  const deleteChat = (id) => {
+    localStorage.removeItem(`chat_${id}`);
+    setChats(prev => { const u = prev.filter(c => c.id !== id); storage.set('hb_chats', u); return u; });
+  };
+
+  if (!lang) return <LangScreen onSelect={selectLang}/>;
+  if (screen === 'chat') return (
+    <ChatScreen lang={lang} chatId={currentChatId} initialQ={initialQ}
+      onBack={() => { setScreen('home'); setInitialQ(null); }}
+      onSave={saveChat}/>
+  );
+  return <HomeScreen lang={lang} onChat={startChat} onOpenChat={openChat}
+    chats={chats} onDeleteChat={deleteChat} lawCount={lawCount}/>;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

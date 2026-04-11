@@ -229,7 +229,8 @@ function Home({lang,setLang,onChat,onOpenChat,chats,onDeleteChat,lawCount,topQ})
   const startQ=q=>onChat(q);
 
   // Top questions: tilga qarab alohida
-  const qTitles=topQ.length>=4?topQ.slice(0,6).map(q=>q.slice(0,22)+(q.length>22?'...':'')):t.quickTitles;
+  
+  const qTitles=topQ.length>=4?topQ.slice(0,6):t.quickTitles;
   const qQ2=topQ.length>=4?topQ.slice(0,6):t.quickQ2;
   const displayChats=showAll?chats:chats.slice(0,3);
 
@@ -306,7 +307,7 @@ function Home({lang,setLang,onChat,onOpenChat,chats,onDeleteChat,lawCount,topQ})
               {qTitles.map((title,i)=>(
                 <button key={i} onClick={()=>startQ(qQ2[i])}
                   style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:22,background:'#101829',border:'1px solid rgba(212,168,58,.2)',cursor:'pointer'}} className="su">
-                  <span style={{fontSize:14}}>{t.quickIcons[i]}</span>
+              
                   <span style={{fontSize:12,fontWeight:500,...F('#e2e8f0'),whiteSpace:'nowrap'}}>{title}</span>
                 </button>
               ))}

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PolicyLens — Options</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body class="options-page">
+    <main class="main">
+    <h1 id="optTitle">PolicyLens</h1>
+    <p class="note" id="optIntro">
+      Choose <strong>Google Gemini</strong> (AI Studio API key) or an <strong>OpenAI-compatible</strong> endpoint. Settings are stored in
+      <code>chrome.storage.sync</code>.
+    </p>
+    <p class="note"><a href="#" id="linkToPaste">Paste policy text (full page)</a></p>
+
+    <label for="uiLocale" id="labelUiLocale">Interface language</label>
+    <select id="uiLocale" aria-label="Interface language">
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+      <option value="uz">Oʻzbek</option>
+    </select>
+
+    <label for="llmProvider" id="labelLlmProvider">LLM provider</label>
+    <select id="llmProvider" aria-label="LLM provider">
+      <option value="gemini">Google Gemini (Generative Language API)</option>
+      <option value="openai">OpenAI-compatible (chat completions)</option>
+    </select>
+
+    <div id="geminiAdvanced" class="hidden">
+      <label for="geminiBaseUrl" id="labelGeminiUrl">Gemini API base URL (optional)</label>
+      <input
+        id="geminiBaseUrl"
+        type="url"
+        placeholder="https://generativelanguage.googleapis.com/v1beta"
+        autocomplete="off"
+      />
+      <p class="note" id="geminiUrlNote">Leave default unless you use a custom Google endpoint.</p>
+    </div>
+
+    <div id="openaiFields">
+      <label for="apiBaseUrl" id="labelOpenaiUrl">OpenAI API base URL</label>
+      <input id="apiBaseUrl" type="url" placeholder="https://api.openai.com/v1" autocomplete="off" />
+    </div>
+
+    <label for="model" id="labelModel">Model</label>
+    <input id="model" type="text" placeholder="gemini-flash-latest" autocomplete="off" />
+
+    <label for="apiKey" id="labelApiKey">API key</label>
+    <input id="apiKey" type="password" placeholder="AIza… or sk-…" autocomplete="off" />
+    <p class="note" id="apiKeySyncNote"></p>
+
+    <button type="button" id="save">Save</button>
+    <p id="status"></p>
+    </main>
+
+    <script src="i18n.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>

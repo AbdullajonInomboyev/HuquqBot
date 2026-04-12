@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PolicyLens</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="header">
+      <h1 id="appTitle">PolicyLens</h1>
+      <div class="header-tools">
+        <a class="options-link" href="#" id="openPastePage" title="Paste & analyze">📋 Paste</a>
+        <a class="options-link" href="#" id="openOptions" title="Options">⚙ API</a>
+      </div>
+    </header>
+
+    <main class="main">
+    <section class="section">
+      <button type="button" class="btn primary" id="btnScan">Scan this page</button>
+      <p class="hint" id="scanHint">
+        Finds privacy, terms, and PDF links in the page. If none match, open the policy in this tab and use
+        <strong>Analyze this tab</strong>.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2 id="sectionCurrentTabHeading">Current tab</h2>
+      <p class="hint" id="hintCurrentTab">
+        For normal web pages we read the live DOM. For URLs that serve a PDF (even without a .pdf suffix), we fetch the
+        file and extract text with PDF.js—so Chrome’s PDF viewer tabs work too.
+      </p>
+      <button type="button" class="btn secondary" id="btnAnalyzeTab">Analyze this tab</button>
+    </section>
+
+    <section class="section hidden" id="linksSection">
+      <h2 id="sectionLinksHeading">Found links</h2>
+      <ul class="link-list" id="linkList"></ul>
+    </section>
+
+    <section class="section hidden" id="statusSection">
+      <div class="status-row" id="statusRow">
+        <p class="status" id="statusText"></p>
+        <span class="status-dots" id="statusDots" aria-hidden="true">
+          <span class="status-dot"></span>
+          <span class="status-dot"></span>
+          <span class="status-dot"></span>
+        </span>
+      </div>
+    </section>
+
+    <section class="section hidden" id="resultSection">
+      <h2 id="sectionAnalysisHeading">Analysis</h2>
+      <p class="hint" id="lastRunHint"></p>
+      <div class="risk-badge" id="riskBadge"></div>
+      <p class="summary" id="summaryText"></p>
+      <details open>
+        <summary id="findingsSummary">Findings</summary>
+        <ul class="findings" id="findingsList"></ul>
+      </details>
+      <details>
+        <summary id="questionsSummary">Questions to verify</summary>
+        <ul id="questionsList"></ul>
+      </details>
+      <details>
+        <summary id="missingSummary">Missing context</summary>
+        <ul id="missingList"></ul>
+      </details>
+      <p class="disclaimer" id="disclaimerText"></p>
+    </section>
+    </main>
+
+    <script src="i18n.js"></script>
+    <script src="results-ui.js"></script>
+    <script src="status-ui.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "policylens",
+  "version": "0.4.1",
+  "description": "PolicyLens — Chrome extension: scan pages for policy links and analyze text with an LLM",
+  "private": true,
+  "scripts": {
+    "test": "node --test test/heuristics.test.mjs",
+    "vendor:pdfjs": "node scripts/copy-pdfjs.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "pdfjs-dist": "^4.10.38"
+  }
+}

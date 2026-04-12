@@ -239,7 +239,9 @@ function Home({lang,setLang,onChat,onOpenChat,chats,onDeleteChat,lawCount,topQ})
     },350);
   },[query,lang]);
 
-  const qTitles=topQ.length>=4?topQ.slice(0,6):t.quickTitles;
+  const MAX_PILL = 18;
+  const truncate = s => s.length > MAX_PILL ? s.slice(0, MAX_PILL).trimEnd() + '...' : s;
+  const qTitles=topQ.length>=4?topQ.slice(0,6).map(truncate):t.quickTitles.map(truncate);
   const qQ2=topQ.length>=4?topQ.slice(0,6):t.quickQ2;
   const displayChats=showAll?chats:chats.slice(0,3);
 
@@ -746,7 +748,6 @@ function App(){
     if(tg){
       tg.ready();
       tg.expand();
-      tg.requestFullscreen?.(); // Full screen support
       tg.setHeaderColor?.('#050810');
       tg.setBackgroundColor?.('#050810');
     }

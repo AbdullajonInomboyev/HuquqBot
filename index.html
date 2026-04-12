@@ -322,11 +322,11 @@ function Home({lang,setLang,onChat,onOpenChat,chats,onDeleteChat,lawCount,topQ})
           <>
             {/* Quick questions */}
             <div style={{fontSize:10,...F('#94a3b8'),textTransform:'uppercase',letterSpacing:'0.08em',fontWeight:600,marginBottom:9}}>{t.quickQ}</div>
-            <div style={{display:'flex',flexWrap:'wrap',gap:7,marginBottom:18}}>
+            <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:18}}>
               {qTitles.map((title,i)=>(
                 <button key={i} onClick={()=>onChat(qQ2[i])} className="btn-press su"
-                  style={{padding:'8px 14px',borderRadius:22,background:'#101829',border:'1px solid rgba(212,168,58,.2)',cursor:'pointer',animationDelay:`${i*.04}s`}}>
-                  <span style={{fontSize:12,fontWeight:500,...F('#e2e8f0')}}>{title}</span>
+                  style={{padding:'6px 10px',borderRadius:18,background:'#101829',border:'1px solid rgba(212,168,58,.2)',cursor:'pointer',animationDelay:`${i*.04}s`}}>
+                  <span style={{fontSize:10,fontWeight:500,...F('#e2e8f0')}}>{title}</span>
                 </button>
               ))}
             </div>
